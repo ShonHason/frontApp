@@ -171,7 +171,7 @@ const AuthBox = () => {
           }); // Clear all form fields
         } else {
           console.log("Logging in user:", userData);
-          await loginUser(userData);
+         const response =  await loginUser(userData);
           alert("Signed In Successfully!");
           navigate("/home");
         }

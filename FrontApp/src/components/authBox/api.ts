@@ -20,6 +20,8 @@ export const loginUser = async (userData: {
   console.log("********loginUser**********");
   console.log(userData);
   const response = await axios.post(`${API_URL}/auth/login`, userData);
+  console.log(response.data.accessToken); 
+
   return response.data; // Assuming the server returns data in the response
 };
 export const googleSignIn = async (token: string) => {
