@@ -1,0 +1,88 @@
+/* General body styles to ensure the background is the same and the form is centered */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f5f5f5; /* Grey background */
+  font-family: Arial, sans-serif;
+}
+
+/* Container for centering the AuthBox */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+/* Paper component styling */
+.auth-box-paper {
+  height: 100%;
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  background-color: #ffffff; /* White background for the form */
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Typography for headings */
+.auth-box-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+/* Style for buttons to make them consistent */
+.auth-box-button {
+  margin-top: 16px;
+  padding: 12px 0;
+  background-color: #1976d2; /* Blue color for buttons */
+  color: white;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  box-shadow: none;
+}
+
+.auth-box-button:hover {
+  background-color: #1565c0; /* Darker blue when hovered */
+}
+
+/* Input field styling for text fields */
+.auth-box-textfield {
+  margin-bottom: 15px;
+}
+
+/* Styling for the error messages */
+.auth-box-error {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Tabs component styling */
+.auth-box-tabs {
+  margin-bottom: 20px;
+}
+
+.auth-box-tabs .MuiTab-root {
+  font-weight: bold;
+}
