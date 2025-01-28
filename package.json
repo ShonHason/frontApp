@@ -1,0 +1,15 @@
+{
+  "name": "frontappproject",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"cd frontApp/FrontApp && npm run dev\" \"cd server/As1 && npm run devstart\"",
+    "client": "cd frontApp/FrontApp && npm run dev",
+    "server": "cd server/As1 && npm run devstart"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
