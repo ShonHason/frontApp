@@ -13,7 +13,7 @@ declare global {
           renderButton: (element: HTMLElement | null, options: { theme: string; size: string; text: string; width: string }) => void;
         };
       };
-    };
+    }
   }
 }
 
@@ -24,13 +24,14 @@ interface GoogleCredentialResponse {
 const AuthBox = () => {
   const [tab, setTab] = useState(0);
   const [formValues, setFormValues] = useState({
-    username: "",
+    usernameOrEmail: "",
     email: "",
     password: "",
     confirmPassword: "",
+    username: "",
   });
   const [formErrors, setFormErrors] = useState({
-    username: "",
+    usernameOrEmail: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -51,7 +52,7 @@ const AuthBox = () => {
           {
             theme: "outline",
             size: "large",
-            text: "continue_with",
+            text: "continue_with",  // Google sign-in button text
             width: "100%",
           }
         );
@@ -79,7 +80,7 @@ const AuthBox = () => {
 
       await googleSignIn(response.credential);
       alert("Signed in with Google successfully!");
-      navigate("/home");
+      navigate("/");
     } catch (error) {
       console.error("Google Sign-In failed:", error);
       alert("Failed to sign in with Google.");
@@ -89,13 +90,14 @@ const AuthBox = () => {
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
     setFormValues({
-      username: "",
+      usernameOrEmail: "",
       email: "",
       password: "",
       confirmPassword: "",
+      username: "",
     });
     setFormErrors({
-      username: "",
+      usernameOrEmail: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -113,47 +115,66 @@ const AuthBox = () => {
     return passwordRegex.test(password);
   };
 
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const errors = {
-      username: "",
+      usernameOrEmail: "",
       email: "",
       password: "",
       confirmPassword: "",
     };
-
-    if (formValues.username.trim() === "") {
-      errors.username = "Username is required.";
+  
+    // Sign-In: Allow username or email
+    if (tab === 0 && formValues.usernameOrEmail.trim() === "") {
+      errors.usernameOrEmail = "Username or email is required.";
     }
-
+  
+    if (tab === 1 && !validateEmail(formValues.email)) {
+      errors.email = "Please enter a valid email address.";
+    }
+  
     if (!validatePassword(formValues.password)) {
       errors.password = "Password must be at least 6 characters long and contain at least one letter and one number.";
     }
-
+  
     if (tab === 1 && formValues.password !== formValues.confirmPassword) {
       errors.confirmPassword = "Passwords do not match.";
     }
-
+  
     setFormErrors(errors);
-
+  
     if (Object.values(errors).every((error) => error === "")) {
       try {
         const userData = {
-          username: formValues.username,
+          usernameOrEmail: formValues.usernameOrEmail,  // Send 'usernameOrEmail' for sign-in
           email: formValues.email,
           password: formValues.password,
+          username: tab === 1 ? formValues.username : "", // Add username only when registering
         };
-
+  
         if (tab === 1) {
           console.log("Registering user:", userData);
           await registerUser(userData);
-          alert("Registered Successfully!");
+          alert("Registered Successfully! Please login.");
+          setTab(0); // Switch to login tab after successful registration
+          setFormValues({
+            usernameOrEmail: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+            username: "",
+          }); // Clear all form fields
         } else {
+          console.log("Logging in user:", userData);
           await loginUser(userData);
           alert("Signed In Successfully!");
+          navigate("/home");
         }
-
-        navigate("/home");
       } catch {
         alert("Authentication failed. Please try again.");
       }
@@ -161,7 +182,7 @@ const AuthBox = () => {
   };
 
   return (
-    <Box className="auth-container">
+    <Box className="auth-container" sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
       <Paper
         elevation={3}
         sx={{
@@ -183,18 +204,34 @@ const AuthBox = () => {
           <Tab label="Sign Up" />
         </Tabs>
         <Box component="form" sx={{ mt: 3 }} onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            label="Username"
-            variant="outlined"
-            margin="normal"
-            required
-            name="username"
-            value={formValues.username}
-            onChange={handleInputChange}
-            error={!!formErrors.username}
-            helperText={formErrors.username}
-          />
+          {tab === 0 ? (
+            <TextField
+              fullWidth
+              label="Username or Email"
+              variant="outlined"
+              margin="normal"
+              required
+              name="usernameOrEmail"
+              value={formValues.usernameOrEmail}
+              onChange={handleInputChange}
+              error={!!formErrors.usernameOrEmail}
+              helperText={formErrors.usernameOrEmail}
+            />
+          ) : (
+            <TextField
+              fullWidth
+              label="Username"
+              variant="outlined"
+              margin="normal"
+              required
+              name="username"
+              value={formValues.username}
+              onChange={handleInputChange}
+              error={!!formErrors.username}
+              helperText={formErrors.username}
+            />
+          )}
+
           {tab === 1 && (
             <TextField
               fullWidth
@@ -209,6 +246,7 @@ const AuthBox = () => {
               helperText={formErrors.email}
             />
           )}
+
           <TextField
             fullWidth
             label="Password"

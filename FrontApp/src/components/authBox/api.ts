@@ -14,10 +14,12 @@ export const registerUser = async (userData: {
 };
 
 export const loginUser = async (userData: {
-  username: string;
+  usernameOrEmail: string;
   password: string;
 }) => {
-  const response = await axios.post(`${API_URL}/login`, userData);
+  console.log("********loginUser**********");
+  console.log(userData);
+  const response = await axios.post(`${API_URL}/auth/login`, userData);
   return response.data; // Assuming the server returns data in the response
 };
 export const googleSignIn = async (token: string) => {
