@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Button, Tabs, Tab, Paper, Divider } from "@mui/material";
+import { Box, TextField, Button, Tabs, Tab, Paper, Divider, Typography } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import { registerUser, loginUser, googleSignIn } from "./api"; // Your backend API functions
+import { registerUser, loginUser, googleSignIn } from '../../services/user_api';
 
 declare global {
   interface Window {
@@ -43,7 +43,7 @@ const AuthBox = () => {
     const loadGoogleSignInButton = () => {
       if (window.google && window.google.accounts) {
         window.google.accounts.id.initialize({
-          client_id: "YOUR_GOOGLE_CLIENT_ID", // Replace with your actual client ID
+          client_id: "323396859646-f21h2qhltd3ni9ssc9snstsiusuvlouc.apps.googleusercontent.com", // Replace with your actual client ID
           callback: handleGoogleCallback,
         });
 
@@ -80,7 +80,7 @@ const AuthBox = () => {
 
       await googleSignIn(response.credential);
       alert("Signed in with Google successfully!");
-      navigate("/");
+      navigate("/feed");
     } catch (error) {
       console.error("Google Sign-In failed:", error);
       alert("Failed to sign in with Google.");
@@ -173,7 +173,7 @@ const AuthBox = () => {
           console.log("Logging in user:", userData);
          const response =  await loginUser(userData);
           alert("Signed In Successfully!");
-          navigate("/home");
+          navigate("/feed");
         }
       } catch {
         alert("Authentication failed. Please try again.");
@@ -182,7 +182,29 @@ const AuthBox = () => {
   };
 
   return (
-    <Box className="auth-container" sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+    <Box sx={{
+      display: "flex", 
+      justifyContent: "center", 
+      alignItems: "center", 
+      minHeight: "100vh", 
+      flexDirection: "column"
+    }}>
+      <Box sx={{
+        width: "100%",
+        height: "60px",
+        backgroundColor: "#f2e1c1",  // Light brown color
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: "24px",
+        fontWeight: "bold",
+        color: "#4f4f4f", // Darker font for contrast
+        borderRadius: "5px 5px 0 0",
+        marginBottom: "20px",
+      }}>
+        <Typography>Welcome to Our Platform</Typography>
+      </Box>
+
       <Paper
         elevation={3}
         sx={{

@@ -1,8 +1,8 @@
+import React from 'react';
 import { AppBar, IconButton, Typography, Menu, Avatar, Button, Tooltip, MenuItem, Toolbar, Box } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import MovieFilterIcon from '@mui/icons-material/MovieFilter';
-
-import * as React from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for routing
 
 function isConnected() {
   return true; // Replace with your actual connection logic
@@ -13,9 +13,32 @@ const settings = ['My Profile', 'Settings'];
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const navigate = useNavigate(); // Instantiate navigate
 
   // Dynamically calculate `pages` based on the connection state
   const pages = isConnected() ? ['Feed', 'My Posts', 'Logout'] : [];
+
+  // Handler for navigation buttons
+  const handleNavClick = (page: string) => {
+    // Example routing logic. Customize routes as needed.
+    switch (page) {
+      case 'Feed':
+        navigate('/feed');
+        break;
+      case 'My Posts':
+        navigate('/myposts');
+        break;
+      case 'Logout':
+        // Here you can add logout logic (e.g., clear tokens, user state, etc.)
+        localStorage.removeItem('accessToken'); // or localStorage.clear();
+        navigate('/'); // Navigate to the home page (http://localhost:5173/)
+        break;
+      default:
+        break;
+    }
+    // Close the nav menu if it's open
+    handleCloseNavMenu();
+  };
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -54,7 +77,6 @@ function ResponsiveAppBar() {
           }}
         >
           FireFilm
-
         </Typography>
 
         {/* Mobile Menu Icon */}
@@ -86,14 +108,12 @@ function ResponsiveAppBar() {
             sx={{ display: { xs: 'block', md: 'none' } }}
           >
             {pages.map((page) => (
-              <MenuItem key={page} onClick={handleCloseNavMenu}>
+              <MenuItem key={page} onClick={() => handleNavClick(page)}>
                 <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
               </MenuItem>
             ))}
           </Menu>
         </Box>
-
-  
 
         {/* Right-Aligned Navigation Links and Avatar */}
         {isConnected() && (
@@ -103,7 +123,7 @@ function ResponsiveAppBar() {
               {pages.map((page) => (
                 <Button
                   key={page}
-                  onClick={handleCloseNavMenu}
+                  onClick={() => handleNavClick(page)}
                   sx={{
                     my: 2,
                     color: 'white',
