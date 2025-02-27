@@ -2,23 +2,23 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ResponsiveAppBar from './components/header/ResponsiveAppBar';
 import AuthBox from './components/authBox/AuthBox';
 import Home from './components/home/Home';
+import ProfilePage from './components/ProfilePage/ProfilePage';
 import './App.css';
-import { Container } from '@mui/material';
 import SinglePostPage from './components/singlePost/singlePost';
-
-
 
 function App() {
   return (
     <Router>
       <ResponsiveAppBar />
-      <Container>
+      <div className="page-container">
         <Routes>
-          <Route path="/" element={<AuthBox />} />
+          <Route path="/" element={<div className="auth-container"><AuthBox /></div>} />
           <Route path="/feed" element={<Home />} />
+          <Route path="/myprofile" element={<ProfilePage />} />
+
           <Route path="/post/:id" element={<SinglePostPage />} />
         </Routes>
-      </Container>
+      </div>
     </Router>
   );
 }
