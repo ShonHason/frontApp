@@ -1,0 +1,5 @@
+/* Ensure the whole page takes full height */
+html, body, #root, .page-container { height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; }
+
+/* Center the AuthBox */
+.auth-container { flex: 1; display: flex; justify-content: center; align-items: center; }

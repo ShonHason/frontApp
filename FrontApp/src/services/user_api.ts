@@ -35,7 +35,9 @@ export const googleSignIn = async (token: string) => {
   const response = await axios.post(`${API_URL}/auth/google-signin`, { token });
   localStorage.setItem("accessToken", response.data.accessToken);
   localStorage.setItem("refreshToken", response.data.refreshToken);
-  localStorage.setItem("userId", response.data.userId);
+  const email = response.data.email;
+  const username = email.split('@')[0];
+  localStorage.setItem("username", username);
 
 
   return response.data;
@@ -58,9 +60,22 @@ export const deleteUser = async (userId: string) => {
   const response = await axios.delete(`${API_URL}/users/delete/${userId}`);
   return response.data;
 };
+
 export const logout = async () => {
-  const response = await axios.post(`${API_URL}/auth/logout`,localStorage.getItem("refreshToken"));
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
-  return response.data;
+  const refreshToken = localStorage.getItem("refreshToken");
+  
+  if (refreshToken) {
+    const response = await axios.post(`${API_URL}/auth/logout`, { refreshToken });
+    
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("username");
+  
+    
+    return response.data;
+  } else {
+    console.error("No refresh token found");
+  }
 }
+

@@ -1,22 +1,35 @@
 import React from 'react';
-import { AppBar, IconButton, Typography, Menu, Avatar, Button, Tooltip, MenuItem, Toolbar, Box } from '@mui/material';
+import {
+  AppBar,
+  IconButton,
+  Typography,
+  Menu,
+  Avatar,
+  Button,
+  Tooltip,
+  MenuItem,
+  Toolbar,
+  Box,
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import MovieFilterIcon from '@mui/icons-material/MovieFilter';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for routing
+import { logout } from '../../services/user_api';
 
 function isConnected() {
-  return true; // Replace with your actual connection logic
+  const accessToken = localStorage.getItem('accessToken');
+  return (accessToken !== null && accessToken.trim() !== '');
 }
 
-const settings = ['My Profile', 'Settings'];
-
-function ResponsiveAppBar() {
+const ResponsiveAppBar = () => {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const navigate = useNavigate(); // Instantiate navigate
 
   // Dynamically calculate `pages` based on the connection state
   const pages = isConnected() ? ['Feed', 'My Posts', 'Logout'] : [];
+
+  const settings = ['My Profile'];
 
   // Handler for navigation buttons
   const handleNavClick = (page: string) => {
@@ -29,8 +42,7 @@ function ResponsiveAppBar() {
         navigate('/myposts');
         break;
       case 'Logout':
-        // Here you can add logout logic (e.g., clear tokens, user state, etc.)
-        localStorage.removeItem('accessToken'); // or localStorage.clear();
+        logout();
         navigate('/'); // Navigate to the home page (http://localhost:5173/)
         break;
       default:
@@ -52,8 +64,11 @@ function ResponsiveAppBar() {
     setAnchorElNav(null);
   };
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
+  const handleCloseUserMenu = (setting: string) => {
+    if (setting === 'My Profile') {
+      navigate('/myprofile'); // Navigate to the profile page
+    }
+    setAnchorElUser(null); // Close the user menu
   };
 
   return (
@@ -78,6 +93,13 @@ function ResponsiveAppBar() {
         >
           FireFilm
         </Typography>
+
+        {/* Display text only when connected */}
+        {isConnected() && (
+          <Typography sx={{ marginLeft: '20px', color: 'white' }}>
+            ברוך הבא!
+          </Typography>
+        )}
 
         {/* Mobile Menu Icon */}
         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -129,7 +151,7 @@ function ResponsiveAppBar() {
                     color: 'white',
                     display: 'block',
                     marginRight: '5px',
-                    marginLeft: '5px', // Equal margin on left and right
+                    marginLeft: '5px',
                   }}
                 >
                   {page}
@@ -156,10 +178,10 @@ function ResponsiveAppBar() {
                 horizontal: 'right',
               }}
               open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
+              onClose={() => setAnchorElUser(null)}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <MenuItem key={setting} onClick={() => handleCloseUserMenu(setting)}>
                   <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
                 </MenuItem>
               ))}
@@ -169,6 +191,6 @@ function ResponsiveAppBar() {
       </Toolbar>
     </AppBar>
   );
-}
+};
 
 export default ResponsiveAppBar;

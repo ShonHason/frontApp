@@ -43,7 +43,7 @@ const AuthBox = () => {
     const loadGoogleSignInButton = () => {
       if (window.google && window.google.accounts) {
         window.google.accounts.id.initialize({
-          client_id: "323396859646-f21h2qhltd3ni9ssc9snstsiusuvlouc.apps.googleusercontent.com", // Replace with your actual client ID
+          client_id: "323396859646-f21h2qhltd3ni9ssc9snstsiusuvlouc.apps.googleusercontent.com",
           callback: handleGoogleCallback,
         });
 
@@ -52,7 +52,7 @@ const AuthBox = () => {
           {
             theme: "outline",
             size: "large",
-            text: "continue_with",  // Google sign-in button text
+            text: "continue_with",
             width: "100%",
           }
         );
@@ -128,50 +128,50 @@ const AuthBox = () => {
       password: "",
       confirmPassword: "",
     };
-  
+
     // Sign-In: Allow username or email
     if (tab === 0 && formValues.usernameOrEmail.trim() === "") {
       errors.usernameOrEmail = "Username or email is required.";
     }
-  
+
     if (tab === 1 && !validateEmail(formValues.email)) {
       errors.email = "Please enter a valid email address.";
     }
-  
+
     if (!validatePassword(formValues.password)) {
       errors.password = "Password must be at least 6 characters long and contain at least one letter and one number.";
     }
-  
+
     if (tab === 1 && formValues.password !== formValues.confirmPassword) {
       errors.confirmPassword = "Passwords do not match.";
     }
-  
+
     setFormErrors(errors);
-  
+
     if (Object.values(errors).every((error) => error === "")) {
       try {
         const userData = {
-          usernameOrEmail: formValues.usernameOrEmail,  // Send 'usernameOrEmail' for sign-in
+          usernameOrEmail: formValues.usernameOrEmail,
           email: formValues.email,
           password: formValues.password,
-          username: tab === 1 ? formValues.username : "", // Add username only when registering
+          username: tab === 1 ? formValues.username : "",
         };
-  
+
         if (tab === 1) {
           console.log("Registering user:", userData);
           await registerUser(userData);
           alert("Registered Successfully! Please login.");
-          setTab(0); // Switch to login tab after successful registration
+          setTab(0);
           setFormValues({
             usernameOrEmail: "",
             email: "",
             password: "",
             confirmPassword: "",
             username: "",
-          }); // Clear all form fields
+          });
         } else {
           console.log("Logging in user:", userData);
-         const response =  await loginUser(userData);
+          await loginUser(userData);
           alert("Signed In Successfully!");
           navigate("/feed");
         }
@@ -183,28 +183,12 @@ const AuthBox = () => {
 
   return (
     <Box sx={{
-      display: "flex", 
-      justifyContent: "center", 
-      alignItems: "center", 
-      minHeight: "100vh", 
-      flexDirection: "column"
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "100vh",
+      flexDirection: "row", // Change to row for side-by-side layout
     }}>
-      <Box sx={{
-        width: "100%",
-        height: "60px",
-        backgroundColor: "#f2e1c1",  // Light brown color
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        fontSize: "24px",
-        fontWeight: "bold",
-        color: "#4f4f4f", // Darker font for contrast
-        borderRadius: "5px 5px 0 0",
-        marginBottom: "20px",
-      }}>
-        <Typography>Welcome to Our Platform</Typography>
-      </Box>
-
       <Paper
         elevation={3}
         sx={{
@@ -213,8 +197,25 @@ const AuthBox = () => {
           p: 3,
           borderRadius: 2,
           textAlign: "center",
+          marginRight: "20px", // Space between the boxes
         }}
       >
+        <Box sx={{ 
+          width: "100%",
+          height: "60px",
+          backgroundColor: "#f2e1c1",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontSize: "24px",
+          fontWeight: "bold",
+          color: "#4f4f4f",
+          borderRadius: "5px 5px 0 0",
+          marginBottom: "20px",
+        }}>
+          <Typography>Welcome to FireFilm</Typography>
+        </Box>
+
         <Tabs
           value={tab}
           onChange={handleTabChange}
@@ -304,6 +305,26 @@ const AuthBox = () => {
         <Divider sx={{ my: 2 }}>OR</Divider>
         <Box id="google-signin-button" sx={{ textAlign: "center" }}></Box>
       </Paper>
+
+      <Box sx={{
+        width: "300px", // Adjusted width
+        height: "400px", // Adjusted height
+        backgroundColor: "#F0B27A", // Lighter brown color
+        padding: "20px",
+        borderRadius: "8px",
+        color: "white",
+        marginTop: "20px", // Positioned below the Paper box
+      }}>
+        <Typography variant="h5" gutterBottom>
+          Why Register?
+        </Typography>
+        <Typography variant="body1">
+          Join us to unlock exclusive features, connect with friends, and get personalized recommendations!
+        </Typography>
+        <Typography variant="h6" gutterBottom sx={{ marginTop: "20px" }}>
+          The best movie rating app in the world!
+        </Typography>
+      </Box>
     </Box>
   );
 };
