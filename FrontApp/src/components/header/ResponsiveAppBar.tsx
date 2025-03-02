@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   AppBar,
   IconButton,
@@ -10,40 +10,44 @@ import {
   MenuItem,
   Toolbar,
   Box,
-} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import MovieFilterIcon from '@mui/icons-material/MovieFilter';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for routing
-import { logout } from '../../services/user_api';
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import MovieFilterIcon from "@mui/icons-material/MovieFilter";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../../services/user_api";
 
 function isConnected() {
-  const accessToken = localStorage.getItem('accessToken');
-  return (accessToken !== null && accessToken.trim() !== '');
+  const accessToken = localStorage.getItem("accessToken");
+  return accessToken !== null && accessToken.trim() !== "";
 }
 
 const ResponsiveAppBar = () => {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const navigate = useNavigate(); // Instantiate navigate
+  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
+    null
+  );
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
+    null
+  );
+  const navigate = useNavigate();
 
   // Dynamically calculate `pages` based on the connection state
-  const pages = isConnected() ? ['Feed', 'My Posts', 'Logout'] : [];
+  const pages = isConnected() ? ["Feed", "My Posts", "Logout"] : [];
 
-  const settings = ['My Profile'];
+  const settings = ["My Profile"];
 
   // Handler for navigation buttons
   const handleNavClick = (page: string) => {
-    // Example routing logic. Customize routes as needed.
     switch (page) {
-      case 'Feed':
-        navigate('/feed');
+      case "Feed":
+        navigate("/feed");
         break;
-      case 'My Posts':
-        navigate('/myposts');
+      case "My Posts":
+        // Updated to match /my-posts route
+        navigate("/my-posts");
         break;
-      case 'Logout':
+      case "Logout":
         logout();
-        navigate('/'); // Navigate to the home page (http://localhost:5173/)
+        navigate("/");
         break;
       default:
         break;
@@ -65,17 +69,23 @@ const ResponsiveAppBar = () => {
   };
 
   const handleCloseUserMenu = (setting: string) => {
-    if (setting === 'My Profile') {
-      navigate('/myprofile'); // Navigate to the profile page
+    if (setting === "My Profile") {
+      navigate("/myprofile");
     }
-    setAnchorElUser(null); // Close the user menu
+    setAnchorElUser(null);
   };
 
   return (
-    <AppBar position="fixed" sx={{ width: '100%' }}>
+    <AppBar position="fixed" sx={{ width: "100%" }}>
       <Toolbar disableGutters>
         {/* Desktop Logo */}
-        <MovieFilterIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1, marginLeft: '20px' }} />
+        <MovieFilterIcon
+          sx={{
+            display: { xs: "none", md: "flex" },
+            mr: 1,
+            marginLeft: "20px",
+          }}
+        />
         <Typography
           variant="h6"
           noWrap
@@ -83,12 +93,12 @@ const ResponsiveAppBar = () => {
           href="#"
           sx={{
             mr: 2,
-            display: { xs: 'none', md: 'flex' },
-            fontFamily: 'monospace',
+            display: { xs: "none", md: "flex" },
+            fontFamily: "monospace",
             fontWeight: 700,
-            letterSpacing: '.3rem',
-            color: 'inherit',
-            textDecoration: 'none',
+            letterSpacing: ".3rem",
+            color: "inherit",
+            textDecoration: "none",
           }}
         >
           FireFilm
@@ -96,13 +106,13 @@ const ResponsiveAppBar = () => {
 
         {/* Display text only when connected */}
         {isConnected() && (
-          <Typography sx={{ marginLeft: '20px', color: 'white' }}>
+          <Typography sx={{ marginLeft: "20px", color: "white" }}>
             ברוך הבא!
           </Typography>
         )}
 
         {/* Mobile Menu Icon */}
-        <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+        <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
           <IconButton
             size="large"
             aria-label="menu"
@@ -117,21 +127,21 @@ const ResponsiveAppBar = () => {
             id="menu-appbar"
             anchorEl={anchorElNav}
             anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
+              vertical: "bottom",
+              horizontal: "left",
             }}
             keepMounted
             transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left',
+              vertical: "top",
+              horizontal: "left",
             }}
             open={Boolean(anchorElNav)}
             onClose={handleCloseNavMenu}
-            sx={{ display: { xs: 'block', md: 'none' } }}
+            sx={{ display: { xs: "block", md: "none" } }}
           >
             {pages.map((page) => (
               <MenuItem key={page} onClick={() => handleNavClick(page)}>
-                <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+                <Typography sx={{ textAlign: "center" }}>{page}</Typography>
               </MenuItem>
             ))}
           </Menu>
@@ -139,19 +149,21 @@ const ResponsiveAppBar = () => {
 
         {/* Right-Aligned Navigation Links and Avatar */}
         {isConnected() && (
-          <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
+          <Box sx={{ display: "flex", alignItems: "center", ml: "auto" }}>
             {/* Desktop Navigation Links */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box
+              sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}
+            >
               {pages.map((page) => (
                 <Button
                   key={page}
                   onClick={() => handleNavClick(page)}
                   sx={{
                     my: 2,
-                    color: 'white',
-                    display: 'block',
-                    marginRight: '5px',
-                    marginLeft: '5px',
+                    color: "white",
+                    display: "block",
+                    marginRight: "5px",
+                    marginLeft: "5px",
                   }}
                 >
                   {page}
@@ -160,29 +172,37 @@ const ResponsiveAppBar = () => {
             </Box>
 
             <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0, marginRight: '20px' }}>
+              <IconButton
+                onClick={handleOpenUserMenu}
+                sx={{ p: 0, marginRight: "20px" }}
+              >
                 <Avatar alt="User Avatar" src="/static/images/avatar/2.jpg" />
               </IconButton>
             </Tooltip>
             <Menu
-              sx={{ mt: '45px' }}
+              sx={{ mt: "45px" }}
               id="menu-appbar"
               anchorEl={anchorElUser}
               anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+                vertical: "top",
+                horizontal: "right",
               }}
               keepMounted
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+                vertical: "top",
+                horizontal: "right",
               }}
               open={Boolean(anchorElUser)}
               onClose={() => setAnchorElUser(null)}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={() => handleCloseUserMenu(setting)}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                <MenuItem
+                  key={setting}
+                  onClick={() => handleCloseUserMenu(setting)}
+                >
+                  <Typography sx={{ textAlign: "center" }}>
+                    {setting}
+                  </Typography>
                 </MenuItem>
               ))}
             </Menu>
