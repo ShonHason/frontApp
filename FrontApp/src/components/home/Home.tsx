@@ -1,67 +1,91 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Post from "./Post";
+import Post from "./Post"; // Your Post component
 import {
   Box,
   Typography,
   CircularProgress,
   Alert,
+  Button,
   Fab,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
   TextField,
-  Rating,  // שינוי נוסף - ייבוא דירוג
+  Rating,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
-import { addPost } from "../../services/post_api"; 
+import { addPost } from "../../services/post_api";
 
-const Home = () => {
+// Define a TypeScript interface for your post
+interface PostType {
+  _id: string;
+  title: string;
+  content: string;
+  owner: string;
+  likes: number;
+  imageUrl?: string;
+  createdAt: string;
+  rank: number;
+}
+
+// Define an interface for the new post state
+interface NewPost {
+  title: string;
+  content: string;
+  rank: number;
+}
+
+const Home: React.FC = () => {
   const navigate = useNavigate();
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<PostType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [newPost, setNewPost] = useState({ title: "", content: "", rank: 0 }); // שינוי נוסף - ברירת מחדל 3 כוכבים
+  const [newPost, setNewPost] = useState<NewPost>({
+    title: "",
+    content: "",
+    rank: 0,
+  });
+  const [filterByUser, setFilterByUser] = useState<boolean>(false);
+
+  // Assume the logged-in user's ID is stored in localStorage as "userId"
+  const currentUsername: string = localStorage.getItem("username") || "";
 
   useEffect(() => {
     const fetchPosts = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get("http://localhost:4000/Posts");
+        const url = filterByUser
+          ? `http://localhost:4000/Posts?owner=${currentUsername}`
+          : "http://localhost:4000/Posts";
+        const response = await axios.get<PostType[]>(url);
         setPosts(response.data);
-        setLoading(false);
-      } catch {
+      } catch (err) {
         setError("Failed to fetch posts");
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     fetchPosts();
-  }, []);
+  }, [filterByUser, currentUsername]);
 
-  const handlePostClick = (id: string) => {
-    console.log(`Post clicked: ${id}`);
-    navigate(`/post/${id}`);
+  // Toggle between showing all posts and just your posts
+  const handleToggleFilter = () => {
+    setFilterByUser((prev) => !prev);
   };
 
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setNewPost({ title: "", content: "", rank: 3 }); // שינוי נוסף - איפוס השדות
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewPostChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewPost({ ...newPost, [e.target.name]: e.target.value });
   };
 
-  const handleRankChange = (event: React.SyntheticEvent, newValue: number | null) => {
-    setNewPost({ ...newPost, rank: newValue || 3 }); // שינוי נוסף - עדכון הדירוג
+  const handleRankChange = (
+    event: React.SyntheticEvent,
+    newValue: number | null
+  ) => {
+    setNewPost({ ...newPost, rank: newValue || 0 });
   };
 
   const handleCreatePost = async () => {
@@ -70,31 +94,46 @@ const Home = () => {
       return;
     }
 
-  
-
     const postData = {
-      title : newPost.title,
-      content : newPost.content,
-      rank : newPost.rank, 
-      owner : localStorage.getItem("username") || "",
-      imgUrl: " ", 
-      
+      ...newPost,
+      owner: currentUsername,
+      imageUrl: " ", // Adjust as needed
     };
 
     try {
       const response = await addPost(postData);
-      setPosts([response, ...posts]); 
-      handleCloseDialog(); 
-    } catch {
+      // Assuming response is of type PostType
+      setPosts([response, ...posts]);
+      setOpenDialog(false);
+      setNewPost({ title: "", content: "", rank: 0 });
+    } catch (err) {
       alert("Failed to create post. Please try again.");
     }
   };
 
   return (
-    <Box sx={{ width: "100%", position: "absolute", top: "64px", left: 0, right: 0, padding: "20px", boxSizing: "border-box" }}>
-      <Typography variant="h4" component="h1" sx={{ textAlign: "center", marginBottom: 3 }}>
-        All Movie Reviews
+    <Box
+      sx={{
+        width: "100%",
+        position: "absolute",
+        top: "64px",
+        left: 0,
+        right: 0,
+        padding: "20px",
+        boxSizing: "border-box",
+      }}
+    >
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{ textAlign: "center", marginBottom: 3 }}
+      >
+        {filterByUser ? "My Posts" : "All Movie Reviews"}
       </Typography>
+
+      <Button variant="contained" onClick={handleToggleFilter} sx={{ mb: 2 }}>
+        {filterByUser ? "Show All Posts" : "Show My Posts"}
+      </Button>
 
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", marginY: 3 }}>
@@ -103,30 +142,33 @@ const Home = () => {
       )}
       {error && <Alert severity="error">{error}</Alert>}
 
-      <Box sx={{ display: "flex", flexDirection: "column", margin: 0, padding: 0 }}>
+      <Box sx={{ display: "flex", flexDirection: "column" }}>
         {posts.map((post) => (
           <Post
             key={post._id}
             _id={post._id}
             title={post.title}
-            imgUrl={post.imageUrl} 
             content={post.content}
             owner={post.owner}
             createdAt={post.createdAt}
-            rank={post.rank} // שינוי נוסף - הצגת הדירוג בפוסט
+            rank={post.rank}
             likes={post.likes}
-            hasLiked={post.hasLiked}
-            onClick={() => handlePostClick(post._id)}
+            imgUrl={post.imageUrl}
+            onClick={() => navigate(`/post/${post._id}`)}
           />
         ))}
       </Box>
 
-      <Fab color="primary" aria-label="add" sx={{ position: "fixed", bottom: 20, right: 20 }} onClick={handleOpenDialog}>
+      <Fab
+        color="primary"
+        aria-label="add"
+        sx={{ position: "fixed", bottom: 20, right: 20 }}
+        onClick={() => setOpenDialog(true)}
+      >
         <AddIcon />
       </Fab>
 
-      {/* דיאלוג יצירת פוסט חדש */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Create a New Post</DialogTitle>
         <DialogContent>
           <TextField
@@ -137,7 +179,7 @@ const Home = () => {
             fullWidth
             variant="outlined"
             value={newPost.title}
-            onChange={handleChange}
+            onChange={handleNewPostChange}
           />
           <TextField
             margin="dense"
@@ -148,16 +190,19 @@ const Home = () => {
             rows={4}
             variant="outlined"
             value={newPost.content}
-            onChange={handleChange}
+            onChange={handleNewPostChange}
           />
-          {/* שינוי נוסף - רכיב דירוג */}
           <Box sx={{ display: "flex", alignItems: "center", marginTop: 2 }}>
             <Typography sx={{ marginRight: 1 }}>Rating:</Typography>
-            <Rating name="rank" value={newPost.rank} onChange={handleRankChange} />
+            <Rating
+              name="rank"
+              value={newPost.rank}
+              onChange={handleRankChange}
+            />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="secondary">
+          <Button onClick={() => setOpenDialog(false)} color="secondary">
             Cancel
           </Button>
           <Button onClick={handleCreatePost} color="primary">
