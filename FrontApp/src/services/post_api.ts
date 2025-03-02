@@ -125,7 +125,7 @@ export const updateComment = async (postId: string, postData: {
 }) => {
   try {
     const accessToken = localStorage.getItem("accessToken");
-    const response = await axios.put(`${API_URL}/Comments/${postId}`, postData,{
+    const response = await axios.put(`${API_URL}/Comments/${postId}`, postData.comment,{
       headers: {
         Authorization: "jwt " + accessToken,
       },});

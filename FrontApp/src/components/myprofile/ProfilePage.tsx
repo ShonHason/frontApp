@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   TextField,
-  Typography,
   Avatar,
   IconButton,
   Grid,
@@ -30,7 +29,7 @@ const ProfilePage = () => {
     }
   }, []);
 
-  const fetchUserProfile = async (username) => {
+  const fetchUserProfile = async (username:string) => {
     try {
       const response = await axios.get(`//${username}`); // Adjust the API endpoint accordingly
       const userProfile = response.data;
@@ -60,11 +59,7 @@ const ProfilePage = () => {
     console.log('Updated profile:', { username, email, password, image });
   };
 
-  interface UserProfile {
-    email: string;
-    password: string;
-    image: string;
-  }
+
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
       <Card elevation={3} sx={{ borderRadius: 2 }}>
