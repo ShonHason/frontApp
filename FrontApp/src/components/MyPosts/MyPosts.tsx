@@ -88,9 +88,8 @@ const MyPosts: React.FC = () => {
             createdAt={post.createdAt}
             rank={post.rank}
             likes={post.likes}
-            imgUrl={post.imageUrl}
-            onClick={() => navigate(`/post/${post._id}`)}
-          />
+            imageUrl={post.imageUrl}
+            onClick={() => navigate(`/post/${post._id}`)} hasLiked={false}          />
         ))}
       </Box>
     </Box>

@@ -75,8 +75,7 @@ const AuthBox = () => {
 
   const handleGoogleCallback = async (response: GoogleCredentialResponse) => {
     try {
-      const decoded: any = jwtDecode(response.credential);
-      console.log("Google User:", decoded);
+      jwtDecode(response.credential);
 
       await googleSignIn(response.credential);
       alert("Signed in with Google successfully!");
@@ -154,7 +153,7 @@ const AuthBox = () => {
           usernameOrEmail: formValues.usernameOrEmail,
           email: formValues.email,
           password: formValues.password,
-          username: tab === 1 ? formValues.username : "",
+          username: tab === 1 ? formValues.email.split('@')[0] : "",
         };
 
         if (tab === 1) {
