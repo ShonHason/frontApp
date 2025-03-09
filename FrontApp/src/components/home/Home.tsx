@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Post from "./Post"; // Your Post component
+import Post from "./Post";
+import Spinner from '../Spinner';
+import Paging from "../Paging/Paging"; // Import the new Paging component
 import {
   Box,
   Typography,
-  CircularProgress,
   Alert,
   Button,
   Fab,
@@ -19,7 +20,6 @@ import { useNavigate } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import { addPost } from "../../services/post_api";
 
-// Define a TypeScript interface for your post
 interface PostType {
   _id: string;
   title: string;
@@ -31,17 +31,27 @@ interface PostType {
   rank: number;
 }
 
-// Define an interface for the new post state
 interface NewPost {
   title: string;
   content: string;
   rank: number;
 }
 
+const loadingMessages = ["Fetching posts...", "Almost there...", "Loading content..."];
+const postingMessages = [
+  "Creating your post...", 
+  "Saving your review...", 
+  "Uploading content...", 
+  "Almost done..."
+];
+
+const POSTS_PER_PAGE = 5; // Exactly 5 posts per page
+
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState<PostType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [creatingPost, setCreatingPost] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [newPost, setNewPost] = useState<NewPost>({
@@ -50,29 +60,59 @@ const Home: React.FC = () => {
     rank: 0,
   });
   const [filterByUser, setFilterByUser] = useState<boolean>(false);
+  
+  // Paging state
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [displayedPosts, setDisplayedPosts] = useState<PostType[]>([]);
 
-  // Assume the logged-in user's ID is stored in localStorage as "userId"
   const currentUsername: string = localStorage.getItem("username") || "";
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      try {
-        const url = filterByUser
-          ? `http://localhost:4000/Posts?owner=${currentUsername}`
-          : "http://localhost:4000/Posts";
-        const response = await axios.get<PostType[]>(url);
-        setPosts(response.data);
-      } catch (err) {
-        setError("Failed to fetch posts");
-      }
-      setLoading(false);
-    };
-
     fetchPosts();
   }, [filterByUser, currentUsername]);
 
-  // Toggle between showing all posts and just your posts
+  // Update displayed posts when posts array or current page changes
+  useEffect(() => {
+    if (posts.length === 0) {
+      setDisplayedPosts([]);
+      return;
+    }
+
+    const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+    const endIndex = Math.min(startIndex + POSTS_PER_PAGE, posts.length);
+    
+    // Ensure we're not trying to access beyond the array bounds
+    if (startIndex >= posts.length) {
+      // If current page would be empty, adjust to the last valid page
+      const lastValidPage = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+      setCurrentPage(lastValidPage);
+      return;
+    }
+    
+    setDisplayedPosts(posts.slice(startIndex, endIndex));
+  }, [posts, currentPage]);
+
+  // Reset to first page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterByUser]);
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    try {
+      const url = filterByUser
+        ? `http://localhost:4000/Posts?owner=${currentUsername}`
+        : "http://localhost:4000/Posts";
+      const response = await axios.get<PostType[]>(url);
+      setPosts(response.data);
+      setCurrentPage(1); // Reset to first page when new data is loaded
+    } catch (err) {
+      setError("Failed to fetch posts");
+      console.error("Error fetching posts:", err);
+    }
+    setLoading(false);
+  };
+
   const handleToggleFilter = () => {
     setFilterByUser((prev) => !prev);
   };
@@ -94,22 +134,50 @@ const Home: React.FC = () => {
       return;
     }
 
+    setCreatingPost(true); // Show spinner while posting
+
     const postData = {
       ...newPost,
       owner: currentUsername,
-      imageUrl: " ", // Adjust as needed
+      imgUrl: "",
     };
 
     try {
-      const response = await addPost(postData);
-      // Assuming response is of type PostType
-      setPosts([response, ...posts]);
-      setOpenDialog(false);
-      setNewPost({ title: "", content: "", rank: 0 });
+      const response = await Promise.race([
+        addPost(postData),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Post creation timed out")), 40000)
+        )
+      ]) as PostType;
+
+      if (response && response._id) {
+        setPosts((prevPosts) => [response, ...prevPosts]);
+        setOpenDialog(false);
+        setNewPost({ title: "", content: "", rank: 0 });
+        
+        // Fetch latest posts to ensure UI updates
+        await fetchPosts();
+      } else {
+        throw new Error("Invalid response format");
+      }
     } catch (err) {
-      alert("Failed to create post. Please try again.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to create post";
+      setError(errorMessage);
+      console.error("Post creation error:", err);
+      alert(errorMessage + ". Please try again.");
+    } finally {
+      setCreatingPost(false);
     }
   };
+
+  // Handle page change from Paging component
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo(0, 0); // Scroll to top when changing pages
+  };
+
+  // Calculate total pages
+  const totalPages = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
 
   return (
     <Box
@@ -135,15 +203,12 @@ const Home: React.FC = () => {
         {filterByUser ? "Show All Posts" : "Show My Posts"}
       </Button>
 
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", marginY: 3 }}>
-          <CircularProgress />
-        </Box>
-      )}
-      {error && <Alert severity="error">{error}</Alert>}
+      {loading && <Spinner messages={loadingMessages} interval={1500} />}
+      {creatingPost && <Spinner messages={postingMessages} interval={1500} overlay={true} color="secondary" />}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
       <Box sx={{ display: "flex", flexDirection: "column" }}>
-        {posts.map((post) => (
+        {displayedPosts.map((post) => (
           <Post
             key={post._id}
             _id={post._id}
@@ -153,11 +218,29 @@ const Home: React.FC = () => {
             createdAt={post.createdAt}
             rank={post.rank}
             likes={post.likes}
-            imgUrl={post.imageUrl}
+            imageUrl={post.imageUrl || ""}
             onClick={() => navigate(`/post/${post._id}`)}
+            hasLiked={false}
           />
         ))}
       </Box>
+
+      {/* Centered Paging Component at bottom */}
+      {!loading && posts.length > 0 && (
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          width: '100%',
+          marginTop: 4,
+          marginBottom: 2
+        }}>
+          <Paging
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </Box>
+      )}
 
       <Fab
         color="primary"
@@ -205,8 +288,12 @@ const Home: React.FC = () => {
           <Button onClick={() => setOpenDialog(false)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleCreatePost} color="primary">
-            Post
+          <Button 
+            onClick={handleCreatePost} 
+            color="primary"
+            disabled={creatingPost}
+          >
+            {creatingPost ? "Posting..." : "Post"}
           </Button>
         </DialogActions>
       </Dialog>

@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ResponsiveAppBar from "./components/header/ResponsiveAppBar";
 import AuthBox from "./components/authBox/AuthBox";
 import Home from "./components/home/Home";
-import ProfilePage from "./components/ProfilePage/ProfilePage";
+import ProfilePage from "./components/myprofile/ProfilePage.tsx";
 import "./App.css";
 import SinglePostPage from "./components/singlePost/singlePost";
 import MyPosts from "./components/MyPosts/MyPosts.tsx";

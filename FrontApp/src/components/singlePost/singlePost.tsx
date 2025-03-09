@@ -13,7 +13,7 @@ import {
   singlePost, getComments, addLike, unlike, addComment, 
   deleteComment, updateComment, updatePost, deletePost 
 } from "../../services/post_api";
-
+import { getImg } from "../../services/file_api";
 // Types
 type PostType = {
   _id: string;
@@ -22,7 +22,7 @@ type PostType = {
   content: string;
   owner: string;
   likes: number;
-  imgUrl: string;
+  imageUrl?: string;
   createdAt: string;
   rank: number;
 };
@@ -46,7 +46,9 @@ const SinglePostPage: React.FC = () => {
   const [editedComment, setEditedComment] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
-  
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [userAvatars, setUserAvatars] = useState<{[key: string]: string}>({});
+
   // States for editing the post
   const [editPostOpen, setEditPostOpen] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
@@ -69,16 +71,47 @@ const SinglePostPage: React.FC = () => {
       setPost(data);
       setEditedTitle(data.title);
       setEditedContent(data.content);
+      const avatarUrl : string = await getImg(data.owner);
+      console.log(avatarUrl);
+      setAvatarUrl(avatarUrl); // Set the state with the avatar URL
+
+      // Add the post owner's avatar to userAvatars state as well for consistency
+      setUserAvatars(prev => ({
+        ...prev,
+        [data.owner]: avatarUrl
+      }));
     } catch (error) {
       console.error("Error fetching post:", error);
     }
   };
 
-  // Fetch comments.
+  // Fetch comments and their user avatars
   const fetchComments = async (postId: string) => {
     try {
       const data = await getComments(postId);
       setComments(data);
+      
+      // Get unique users to fetch their avatars
+      const uniqueUsers = Array.from(new Set(data.map((comment: { owner: string; }) => comment.owner)));
+      
+      // Fetch avatar for each unique user
+      const avatarPromises = uniqueUsers.map(async (username) => {
+        try {
+          const avatarUrl = await getImg(username);
+          return { username, avatarUrl };
+        } catch (error) {
+          console.error(`Error fetching avatar for ${username}:`, error);
+          return { username, avatarUrl: '' };
+        }
+      });
+      
+      const avatarResults = await Promise.all(avatarPromises);
+      const avatarMap = avatarResults.reduce((map, { username, avatarUrl }) => {
+        map[username] = avatarUrl;
+        return map;
+      }, {} as {[key: string]: string});
+      
+      setUserAvatars(prev => ({...prev, ...avatarMap}));
     } catch (error) {
       console.error("Error fetching comments:", error);
     }
@@ -92,6 +125,7 @@ const SinglePostPage: React.FC = () => {
         owner: currentUser,
         postId: id,
       });
+      
       setComments((prev) => [
         ...prev,
         {
@@ -101,6 +135,20 @@ const SinglePostPage: React.FC = () => {
           createdAt: new Date().toISOString(),
         },
       ]);
+      
+      // If we don't already have the current user's avatar, fetch it
+      if (!userAvatars[currentUser]) {
+        try {
+          const avatarUrl = await getImg(currentUser);
+          setUserAvatars(prev => ({
+            ...prev,
+            [currentUser]: avatarUrl
+          }));
+        } catch (error) {
+          console.error(`Error fetching avatar for ${currentUser}:`, error);
+        }
+      }
+      
       setNewComment("");
     } catch (error) {
       console.error("Error adding comment:", error);
@@ -222,7 +270,7 @@ const SinglePostPage: React.FC = () => {
               <Box sx={{ width: { xs: "100%", md: "300px" }, height: { xs: "400px", md: "450px" }, position: "relative" }}>
                 <Box
                   component="img"
-                  src={post.imgUrl || "https://via.placeholder.com/300x450"}
+                  src={post.imageUrl || " "}
                   alt={post.title}
                   sx={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
@@ -249,7 +297,7 @@ const SinglePostPage: React.FC = () => {
                 </Box>
                 
                 <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                  <Avatar sx={{ bgcolor: "#3f51b5", mr: 2, width: 42, height: 42 }}>
+                  <Avatar sx={{ bgcolor: "#3f51b5", mr: 2, width: 42, height: 42 }} src={avatarUrl}>
                     {getDisplayName(post.owner).charAt(0).toUpperCase()}
                   </Avatar>
                   <Box>
@@ -384,11 +432,11 @@ const SinglePostPage: React.FC = () => {
                       <Avatar
                         sx={{
                           mr: 2,
-                          bgcolor:
-                            comment.owner === currentUser ? "#3f51b5" : "#9e9e9e",
+                          bgcolor: comment.owner === currentUser ? "#3f51b5" : "#9e9e9e",
                           width: 40,
-                          height: 40,
+                          height: 40, 
                         }}
+                        src={userAvatars[comment.owner] || ''}
                       >
                         {getDisplayName(comment.owner).charAt(0).toUpperCase()}
                       </Avatar>

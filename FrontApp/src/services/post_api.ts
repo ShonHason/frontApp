@@ -1,7 +1,15 @@
-// src/api/post_api.ts
 import axios from "axios";
 
 const API_URL = "http://localhost:4000"; // Your API URL
+export const myPosts = async (owner: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/Posts/${owner}`);
+    return response.data;
+  } catch (error) { 
+    console.error("Error fetching posts:", error);
+    throw error;
+  }
+};
 
 export const addComment = async (newcomment: {
   postId: string;
@@ -33,7 +41,7 @@ export const addComment = async (newcomment: {
 
 export const singlePost = async (postId: string) => {
   try {
-    const response = await axios.get(`${API_URL}/posts/${postId}`);
+    const response = await axios.get(`${API_URL}/Posts/${postId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching post:", error);
@@ -129,7 +137,7 @@ export const deleteComment = async (commentId: string) => {
   }
 };
 export const updateComment = async (
-  postId: string,
+  commentId: string,
   postData: {
     comment: string;
     owner: string;
@@ -137,10 +145,12 @@ export const updateComment = async (
 ) => {
   try {
     const accessToken = localStorage.getItem("accessToken");
-
+    console.log(postData.comment);
+    console.log(commentId); 
     const response = await axios.put(
-      `${API_URL}/Comments/${postId}`,
-      postData.comment,
+      `${API_URL}/Comments/${commentId}`,
+      { comment: postData.comment }
+      ,
       {
         headers: {
           Authorization: "jwt " + accessToken,

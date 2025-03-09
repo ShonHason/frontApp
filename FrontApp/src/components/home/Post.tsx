@@ -9,7 +9,7 @@ interface PostProps {
   content: string;
   owner: string;
   createdAt: string;
-  imgUrl: string;
+  imageUrl?: string;
   likes: number;
   hasLiked: boolean; // New prop to indicate if the post has been liked
   rank: number; // Ensure this is required for rating
@@ -22,7 +22,7 @@ const Post: React.FC<PostProps> = ({
   content,
   owner,
   createdAt,
-  imgUrl,
+  imageUrl,
   likes,
   hasLiked,
   rank,
@@ -56,6 +56,25 @@ const Post: React.FC<PostProps> = ({
     }
   };
 
+  // Log the data for debugging
+  console.log("Post data:", {
+    _id,
+    title,
+    content,
+    owner,
+    createdAt,
+    imageUrl,
+    likes,
+    hasLiked,
+    rank,
+  });
+
+  // Check if necessary values exist
+  if (!title || !imageUrl) {
+    console.error("Missing required post data:", { title, imageUrl });
+    return null; // Return null if data is missing
+  }
+
   return (
     <Card
       sx={{
@@ -83,7 +102,7 @@ const Post: React.FC<PostProps> = ({
       >
         <Box
           component="img"
-          src={imgUrl || "https://via.placeholder.com/180x180"}
+          src={imageUrl || " "}
           alt={title}
           sx={{
             width: "100%",
