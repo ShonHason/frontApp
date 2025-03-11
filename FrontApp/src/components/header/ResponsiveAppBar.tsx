@@ -1,7 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { AppBar, IconButton, Typography, Box, Avatar, Tooltip, Menu, MenuItem, Button, Toolbar } from "@mui/material";
+import { 
+  AppBar, 
+  IconButton, 
+  Typography, 
+  Box, 
+  Avatar, 
+  Tooltip, 
+  Menu, 
+  MenuItem, 
+  Button, 
+  Toolbar,
+  Container
+} from "@mui/material";
 import MovieFilterIcon from "@mui/icons-material/MovieFilter";
-import MenuIcon from "@mui/icons-material/Menu";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LogoutIcon from "@mui/icons-material/Logout";
+import HomeIcon from "@mui/icons-material/Home";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../services/user_api";
 
@@ -11,133 +25,214 @@ function isConnected() {
 }
 
 const ResponsiveAppBar = () => {
-  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(localStorage.getItem("imageUrl"));
+  const [connected, setConnected] = useState<boolean>(isConnected());
   const navigate = useNavigate();
 
-  const pages = isConnected() ? ["Feed", "My Posts", "Logout"] : [];
-  const settings = ["My Profile"];
-
-  // Update imageUrl every 2 seconds to ensure it reflects any changes in localStorage
+  // Update connection status and imageUrl
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      const storedImageUrl = localStorage.getItem("imageUrl");
-      if (storedImageUrl && storedImageUrl !== imageUrl) {
-        setImageUrl(storedImageUrl); // Update the image URL from localStorage
+    const checkStatus = () => {
+      const status = isConnected();
+      setConnected(status);
+      
+      if (status) {
+        const storedImageUrl = localStorage.getItem("imageUrl");
+        if (storedImageUrl && storedImageUrl !== imageUrl) {
+          setImageUrl(storedImageUrl);
+        }
       }
-    }, 2000); // Check every 2 seconds
+    };
 
-    return () => clearInterval(intervalId); // Clean up interval on component unmount
-  }, [imageUrl]); // Only re-run effect when imageUrl changes
+    const intervalId = setInterval(checkStatus, 1000);
+    return () => clearInterval(intervalId);
+  }, [imageUrl]);
 
   const handleNavClick = (page: string) => {
     switch (page) {
       case "Feed":
         navigate("/feed");
         break;
-      case "My Posts":
-        navigate("/my-posts");
-        break;
       case "Logout":
         logout();
+        localStorage.removeItem("imageUrl");
+        localStorage.removeItem("username");
+        setConnected(false);
         navigate("/");
         break;
       default:
         break;
     }
-    handleCloseNavMenu();
-  };
-
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
   };
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
+    if (connected) {
+      setAnchorElUser(event.currentTarget);
+    } else {
+      navigate("/");
+    }
   };
 
   const handleCloseUserMenu = (setting: string) => {
-    if (setting === "My Profile") {
+    if (setting === "My Profile" && connected) {
       navigate("/myprofile");
     }
     setAnchorElUser(null);
   };
 
   return (
-    <AppBar position="fixed" sx={{ width: "100%" }}>
-      <Toolbar disableGutters>
-        <MovieFilterIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1, marginLeft: "20px" }} />
-        <Typography
-          variant="h6"
-          noWrap
-          component="a"
-          href="/feed"
-          sx={{
-            mr: 2,
-            display: { xs: "none", md: "flex" },
-            fontFamily: "monospace",
-            fontWeight: 700,
-            letterSpacing: ".3rem",
-            color: "inherit",
-            textDecoration: "none",
-          }}
-        >
-          FireFilm
-        </Typography>
-
-        <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-          <IconButton onClick={handleOpenNavMenu} color="inherit">
-            <MenuIcon />
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorElNav}
-            open={Boolean(anchorElNav)}
-            onClose={handleCloseNavMenu}
-            sx={{ display: { xs: "block", md: "none" } }}
-          >
-            {pages.map((page) => (
-              <MenuItem key={page} onClick={() => handleNavClick(page)}>
-                <Typography textAlign="center">{page}</Typography>
-              </MenuItem>
-            ))}
-          </Menu>
-        </Box>
-
-        <Box sx={{ display: "flex", alignItems: "center", ml: "auto" }}>
-          <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}>
-            {pages.map((page) => (
-              <Button key={page} onClick={() => handleNavClick(page)} sx={{ my: 2, color: "white", mx: 1 }}>
-                {page}
-              </Button>
-            ))}
+    <AppBar 
+      position="fixed" 
+      elevation={2} 
+      sx={{ 
+        width: "100%", 
+        background: 'linear-gradient(to right, #1976d2, #0d47a1)',
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
+      }}
+    >
+      <Container maxWidth="xl">
+        <Toolbar disableGutters sx={{ height: 68 }}>
+          {/* Logo and brand */}
+          <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
+            <MovieFilterIcon 
+              sx={{ 
+                mr: 1,
+                fontSize: 32,
+                color: '#fff',
+              }} 
+            />
+            <Typography
+              variant="h6"
+              noWrap
+              component="a"
+              href={connected ? "/feed" : "/"}
+              sx={{
+                fontWeight: 700,
+                letterSpacing: "0.1rem",
+                color: "#fff",
+                textDecoration: "none",
+                fontSize: "1.4rem",
+                textTransform: "uppercase",
+              }}
+            >
+              FireFilm
+            </Typography>
           </Box>
 
-          <Tooltip title="Open settings">
-            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0, mr: 2 }}>
-              <Avatar alt="User Avatar" src={imageUrl || "/default-avatar.png"} />
-            </IconButton>
-          </Tooltip>
-          <Menu
-            sx={{ mt: "45px" }}
-            id="menu-appbar"
-            anchorEl={anchorElUser}
-            open={Boolean(anchorElUser)}
-            onClose={() => setAnchorElUser(null)}
-          >
-            {settings.map((setting) => (
-              <MenuItem key={setting} onClick={() => handleCloseUserMenu(setting)}>
-                <Typography textAlign="center">{setting}</Typography>
-              </MenuItem>
-            ))}
-          </Menu>
-        </Box>
-      </Toolbar>
+          {/* Desktop navigation buttons */}
+          <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "flex-end", mr: 2 }}>
+            {connected && (
+              <>
+                <Button
+                  onClick={() => handleNavClick("Feed")}
+                  sx={{ 
+                    color: "white", 
+                    mx: 1,
+                    px: 2,
+                    py: 0.7,
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255,255,255,0.2)',
+                    },
+                    textTransform: 'none',
+                  }}
+                  startIcon={<HomeIcon />}
+                >
+                  <Typography fontWeight={500}>
+                    Feed
+                  </Typography>
+                </Button>
+              </>
+            )}
+          </Box>
+
+          {/* User avatar */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Tooltip title={connected ? "User Settings" : "Sign In"}>
+              <IconButton 
+                onClick={handleOpenUserMenu} 
+                sx={{ 
+                  p: 0,
+                  border: connected ? "2px solid rgba(255,255,255,0.7)" : "none",
+                  borderRadius: '50%',
+                  padding: '2px',
+                }}
+              >
+                {connected && imageUrl ? (
+                  <Avatar 
+                    alt="User Avatar" 
+                    src={imageUrl} 
+                    sx={{ 
+                      width: 40, 
+                      height: 40,
+                    }}
+                  />
+                ) : (
+                  <Avatar
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      bgcolor: 'rgba(255,255,255,0.2)',
+                      color: "white"
+                    }}
+                  >
+                    <AccountCircleIcon />
+                  </Avatar>
+                )}
+              </IconButton>
+            </Tooltip>
+            {connected && (
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={() => setAnchorElUser(null)}
+                PaperProps={{
+                  elevation: 3,
+                  sx: {
+                    borderRadius: 2,
+                    minWidth: 180,
+                    overflow: 'visible',
+                    '& .MuiMenuItem-root': {
+                      py: 1.2
+                    }
+                  }
+                }}
+              >
+                <MenuItem onClick={() => handleCloseUserMenu("My Profile")}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <AccountCircleIcon sx={{ mr: 1.5, fontSize: 20, color: '#1976d2' }} />
+                    <Typography fontWeight={500}>
+                      My Profile
+                    </Typography>
+                  </Box>
+                </MenuItem>
+                <MenuItem onClick={() => handleNavClick("Logout")}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <LogoutIcon sx={{ mr: 1.5, fontSize: 20, color: '#f44336' }} />
+                    <Typography fontWeight={500} color="#f44336">
+                      Logout
+                    </Typography>
+                  </Box>
+                </MenuItem>
+              </Menu>
+            )}
+          </Box>
+        </Toolbar>
+      </Container>
     </AppBar>
   );
 };

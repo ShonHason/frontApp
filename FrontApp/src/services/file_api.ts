@@ -2,6 +2,26 @@
 import axios from 'axios';
 const API_URL = "http://localhost:4000";
 
+const preUserUploadImage = async (file:string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    try {
+      const response = await axios.post(`${API_URL}/file`, formData, {
+        headers: {
+          'Authorization': `jwt ${localStorage.getItem('accessToken')}`, 
+        },
+      });
+  
+      // Return the image URL from the response
+      console.log(response.data.url);
+      return response.data.url;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw new Error('שגיאה בהעלאת התמונה');
+    }
+  };
+
 const uploadImage = async (file:string) => {
   const formData = new FormData();
   formData.append('file', file);
@@ -65,4 +85,4 @@ const getImg = async (username: string) => {
     }
 }
 
-export { uploadImage , saveImg , getImg };
+export { uploadImage , saveImg , getImg, preUserUploadImage };

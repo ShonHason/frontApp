@@ -1,63 +1,85 @@
-/* עיצוב אזור הדפדוף */
 .paging-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 30px;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  /* עיצוב כפתורי הדפדוף */
-  .paging-button {
-    padding: 8px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  
-  .paging-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .paging-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
-  
-  /* עיצוב מספרי העמודים */
-  .page-numbers {
-    display: flex;
-    gap: 5px;
-  }
-  
-  .page-number {
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: white;
-    cursor: pointer;
-  }
-  
-  .page-number.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-  }
-  
-  .page-number:hover:not(.active) {
-    background-color: #f0f0f0;
-  }
-  
-  /* עיצוב מידע על העמוד הנוכחי */
-  .page-info {
-    margin-right: 15px;
-    color: #666;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 45px;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 20px;
+}
+
+.paging-button {
+  padding: 12px 24px;
+  background: linear-gradient(45deg, #ff4081, #ff9100);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 5px 10px rgba(255, 64, 129, 0.3);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-size: 16px;
+}
+
+.paging-button:hover {
+  background: linear-gradient(45deg, #ff9100, #ff4081);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(255, 64, 129, 0.4);
+}
+
+.paging-button:disabled {
+  background: #e0e0e0;
+  color: #a0a0a0;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 10px;
+}
+
+.page-number {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #180202;
+  border-radius: 50%;
+  background-color: white;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.page-number.active {
+  background: linear-gradient(45deg, #ff4081, #ff9100);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 8px rgba(255, 64, 129, 0.4);
+}
+
+.page-number:hover:not(.active) {
+  background-color: #fff3f7;
+  border-color: #ff4081;
+  transform: scale(1.15);
+}
+
+/* עיצוב מידע על העמוד הנוכחי */
+.page-info {
+  margin: 0 20px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  background: linear-gradient(45deg, #673ab7, #3f51b5);
+  padding: 10px 20px;
+  border-radius: 25px;
+  border: 2px solid #9c80e0;
+  box-shadow: 0 4px 8px rgba(103, 58, 183, 0.3);
+  letter-spacing: 0.5px;
+}

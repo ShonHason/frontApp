@@ -22,8 +22,8 @@ import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import axios from 'axios';
-import {changePassword,deleteAccount,updateUser} from '../../services/user_api';
-import {uploadImage,saveImg} from '../../services/file_api';
+import {changePassword,deleteAccount,updateUser} from '../../src/services/user_api';
+import {uploadImage,saveImg} from '../../src/services/file_api';
 import { AlertColor } from '@mui/material';
 
 const ProfilePage = () => {

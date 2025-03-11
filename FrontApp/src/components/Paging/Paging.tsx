@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, styled } from "@mui/material";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 
@@ -8,6 +8,51 @@ interface PagingProps {
   totalPages: number;
   onPageChange: (pageNumber: number) => void;
 }
+
+// Styled components for better visuals
+const PagingButton = styled(Button)(({ theme }) => ({
+  fontWeight: 'bold',
+  boxShadow: '0 3px 5px rgba(0, 0, 0, 0.1)',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
+  },
+  '&.MuiButton-containedPrimary': {
+    background: 'linear-gradient(45deg, #3f51b5, #2196f3)',
+    '&:hover': {
+      background: 'linear-gradient(45deg, #2196f3, #3f51b5)',
+    },
+  },
+  '&.Mui-disabled': {
+    background: '#e0e0e0',
+    color: '#a0a0a0',
+  }
+}));
+
+const NavButton = styled(PagingButton)(({ theme }) => ({
+  padding: '8px 16px',
+  borderRadius: '8px',
+  textTransform: 'uppercase',
+  letterSpacing: '0.5px',
+}));
+
+const PageButton = styled(PagingButton)(({ theme }) => ({
+  minWidth: '40px',
+  height: '40px',
+  borderRadius: '50%',
+  padding: '0px',
+}));
+
+const PageInfo = styled(Typography)(({ theme }) => ({
+  fontWeight: 'bold',
+  padding: '6px 12px',
+  borderRadius: '20px',
+  backgroundColor: '#f0f7ff',
+  border: '1px solid #d0e7ff',
+  color: '#333',
+  marginLeft: '16px',
+}));
 
 const Paging: React.FC<PagingProps> = ({ currentPage, totalPages, onPageChange }) => {
   // Next page
@@ -71,48 +116,46 @@ const Paging: React.FC<PagingProps> = ({ currentPage, totalPages, onPageChange }
       display: 'flex', 
       justifyContent: 'center', 
       alignItems: 'center', 
-      gap: 1
+      gap: 2,
+      padding: 2,
+      flexWrap: 'wrap'
     }}>
-      <Button 
-        variant="outlined"
+      <NavButton 
+        variant="contained"
         onClick={prevPage} 
         disabled={currentPage === 1}
         startIcon={<NavigateBeforeIcon />}
-        size="small"
+        color="primary"
       >
         Previous
-      </Button>
+      </NavButton>
       
-      <Box sx={{ display: 'flex', gap: 0.5 }}>
+      <Box sx={{ display: 'flex', gap: 1 }}>
         {pageNumbers.map((pageNum) => (
-          <Button
+          <PageButton
             key={pageNum}
             onClick={() => goToPage(pageNum)}
             variant={currentPage === pageNum ? "contained" : "outlined"}
-            size="small"
-            sx={{ 
-              minWidth: '36px',
-              height: '36px'
-            }}
+            color="primary"
           >
             {pageNum}
-          </Button>
+          </PageButton>
         ))}
       </Box>
       
-      <Button 
-        variant="outlined"
+      <NavButton 
+        variant="contained"
         onClick={nextPage} 
         disabled={currentPage === totalPages}
         endIcon={<NavigateNextIcon />}
-        size="small"
+        color="primary"
       >
         Next
-      </Button>
+      </NavButton>
       
-      <Typography variant="body2" sx={{ ml: 2 }}>
+      <PageInfo variant="body2">
         Page {currentPage} of {totalPages}
-      </Typography>
+      </PageInfo>
     </Box>
   );
 };
