@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ResponsiveAppBar from "./components/header/ResponsiveAppBar";
-import AuthBox from "../pages/authBox/AuthBox.tsx";
-import Home from "../pages/Home.tsx";
-import ProfilePage from "../pages/myprofile/ProfilePage.tsx";
+import AuthBox from "./pages/authBox/AuthBox.tsx";
+import Home from "./pages/Home.tsx";
+import ProfilePage from "./pages/myprofile/ProfilePage.tsx";
 import "./App.css";
-import SinglePostPage from "../pages/singlePost/singlePost.tsx";
+import SinglePostPage from "./pages/singlePost/singlePost.tsx";
 
 function App() {
   return (

@@ -13,10 +13,10 @@ import {
 import { 
   singlePost, getComments, isLiked
   , updatePost, deletePost 
-} from "../../src/services/post_api";
-import { getImg } from "../../src/services/file_api";
-import LikeButton from "../../src/components/LikeButton"; 
-import CommentSection from "../../src/components/CommentSection"; // Import your existing CommentSection
+} from "../../services/post_api";
+import { getImg } from "../../services/file_api";
+import LikeButton from "../../components/LikeButton"; 
+import CommentSection from "../../components/CommentSection"; // Import your existing CommentSection
 
 // Types
 type PostType = {

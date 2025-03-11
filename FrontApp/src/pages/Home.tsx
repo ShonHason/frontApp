@@ -1,9 +1,9 @@
   import React, { useState, useEffect } from "react";
   import axios from "axios";
-  import Post from "../src/components/Post";
-  import Spinner from '../src/components/Spinner';
-  import Paging from "../src/components/Paging/Paging";
-  import CreatePost from "../src/components/CreatePost";
+  import Post from "../components/Post";
+  import Spinner from '../components/Spinner';
+  import Paging from "../components/Paging/Paging";
+  import CreatePost from "../components/CreatePost";
   import {
     Box,
     Typography,
@@ -19,7 +19,7 @@
   import AddIcon from "@mui/icons-material/Add";
   import FilterListIcon from "@mui/icons-material/FilterList";
   import MovieFilterIcon from '@mui/icons-material/MovieFilter';
-  import { addPost } from "../src/services/post_api";
+  import { addPost } from "../services/post_api";
 
   interface PostType {
     _id: string;
@@ -136,7 +136,7 @@
       const postData = {
         ...newPost,
         owner: currentUsername,
-        imgeUrl: "",
+        imgUrl: "",
       };
 
       try {

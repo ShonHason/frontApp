@@ -3,8 +3,8 @@ import { Box, TextField, Button, Tabs, Tab, Paper, Divider, Typography, Avatar, 
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import { registerUser, loginUser, googleSignIn } from '../../src/services/user_api';
-import { preUserUploadImage } from "../../src/services/file_api";
+import { registerUser, loginUser, googleSignIn } from '../../services/user_api';
+import { preUserUploadImage } from "../../services/file_api";
 declare global {
   interface Window {
     google: {
