@@ -22,7 +22,7 @@ import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import axios from 'axios';
-import {changePassword,deleteAccount,updateUser} from '../../services/user_api';
+import {changePassword,deleteAccount,updateUser} from '../../services/user_api';  
 import {uploadImage,saveImg} from '../../services/file_api';
 import { AlertColor } from '@mui/material';
 
@@ -153,7 +153,7 @@ const ProfilePage = () => {
     showNotification('החשבון נמחק בהצלחה', 'info');
     
     // Redirect to login page after successful deletion
-    window.location.href = '/login';
+    window.location.href = '/';
   } catch (error) {
     console.error('Error deleting account:', error);
     showNotification('שגיאה במחיקת החשבון', 'error');

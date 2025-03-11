@@ -50,7 +50,11 @@ export const singlePost = async (postId: string) => {
 };
 export const addLike = async (postId: string) => {
   try {
-    const response = await axios.put(`${API_URL}/Posts/like/${postId}`);
+    const response = await axios.put(`${API_URL}/Posts/like/${postId}`,{},{
+      headers: {
+       'authorization': `jwt ${localStorage.getItem('accessToken')}`, 
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error adding like:", error);
@@ -60,7 +64,11 @@ export const addLike = async (postId: string) => {
 
 export const unlike = async (postId: string) => {
   try {
-    const response = await axios.put(`${API_URL}/Posts/unlike/${postId}`);
+    const response = await axios.put(`${API_URL}/Posts/unlike/${postId}`,{},{
+      headers: {
+        'authorization': `jwt ${localStorage.getItem('accessToken')}`, 
+      },
+    });
     return response.data; // החזרת התגובה מהשרת אם יש
   } catch (error) {
     console.error("Error removing like:", error);
@@ -177,6 +185,19 @@ export const updatePost = async (
     return response.data;
   } catch (error) {
     console.error("Error updating post:", error);
+    throw error;
+  }
+};
+export const isLiked = async (postId: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/Posts/isLiked/${postId}`, {
+      headers: {
+        authorization: `jwt ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error checking like status:", error);
     throw error;
   }
 };

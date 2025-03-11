@@ -7,6 +7,7 @@ export const registerUser = async (userData: {
   username: string;
   email: string;
   password: string;
+  imgUrl: string;
 }) => {
   console.log(userData + "*******************************************");
   const response = await axios.post(`${API_URL}/auth/register`, userData);
@@ -132,7 +133,7 @@ const checkTokenExpiration = async () => {
   }
 };
 
-setInterval(checkTokenExpiration, 150000); 
+setInterval(checkTokenExpiration, 100000); 
   
 
 // Function to change the password
