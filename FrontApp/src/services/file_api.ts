@@ -2,7 +2,7 @@
 import axios from 'axios';
 const API_URL = "http://localhost:4000";
 
-const preUserUploadImage = async (file:string) => {
+const UserUploadImage = async (file:string) => {
     const formData = new FormData();
     formData.append('file', file);
   
@@ -85,4 +85,4 @@ const getImg = async (username: string) => {
     }
 }
 
-export { uploadImage , saveImg , getImg, preUserUploadImage };
+export { uploadImage , saveImg , getImg, UserUploadImage };

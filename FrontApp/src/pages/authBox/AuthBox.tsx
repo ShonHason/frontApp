@@ -4,7 +4,7 @@ import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { registerUser, loginUser, googleSignIn } from '../../services/user_api';
-import { preUserUploadImage } from "../../services/file_api";
+import { UserUploadImage } from "../../services/file_api";
 declare global {
   interface Window {
     google: {
@@ -91,7 +91,7 @@ const AuthBox = () => {
       }
 
       await googleSignIn(response.credential);
-      alert("Signed in with Google successfully!");
+      console.log("Signed in with Google successfully!");
       navigate("/feed");
     } catch (error) {
       console.error("Google Sign-In failed:", error);
@@ -161,7 +161,7 @@ const AuthBox = () => {
       // Upload the image immediately
       try {
         setIsUploading(true);
-        const uploadedImageUrl = await preUserUploadImage(file);
+        const uploadedImageUrl = await UserUploadImage(file);
         setImageUrl(uploadedImageUrl);
       } catch (error) {
         console.error("Error uploading image:", error);
