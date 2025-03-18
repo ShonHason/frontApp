@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000"; // Your API URL
+const API_URL = "https://10.10.246.3";
 export const myPosts = async (owner: string) => {
   try {
     const response = await axios.get(`${API_URL}/Posts/${owner}`);
@@ -89,29 +89,47 @@ export const getComments = async (postId: string) => {
 export const addPost = async (postData: {
   title: string;
   content: string;
-  imgUrl: string;
+  imgUrl?: string;
   owner: string;
   rank: number;
 }) => {
   try {
-    // Retrieve the access token and userId from localStorage
+    console.log('Adding Post - Input Data:', postData);
+    
+    // Retrieve the access token from localStorage
     const accessToken = localStorage.getItem("accessToken");
+    const owner = localStorage.getItem("username"); // Assuming you store username
 
     if (!accessToken) {
-      throw new Error("Access token not found in localStorage");
+      throw new Error("Access token not found. Please log in.");
     }
 
-    // Add owner to the postData
+    // Ensure owner is added to the postData
+    const completePostData = {
+      ...postData,
+      owner: owner || postData.owner,
+      // Provide a default image URL if not supplied
+      imgUrl: postData.imgUrl || ''
+    };
 
-    // Pass the token in the Authorization header
-    const response = await axios.post(`${API_URL}/Posts/`, postData, {
+    console.log('Complete Post Data:', completePostData);
+
+    // Make the API call
+    const response = await axios.post(`${API_URL}/Posts/`, completePostData, {
       headers: {
-        Authorization: "jwt " + accessToken,
+        'Authorization': `jwt ${accessToken}`,
+        'Content-Type': 'application/json'
       },
     });
+
+    console.log('Post Creation Response:', response.data);
     return response.data;
   } catch (error) {
-    console.error("Error adding post:", error);
+    console.error("Detailed Error adding post:", {
+      error,
+      errorResponse: (error as any).response?.data,
+      errorStatus: (error as any).response?.status
+    });
     throw error;
   }
 };

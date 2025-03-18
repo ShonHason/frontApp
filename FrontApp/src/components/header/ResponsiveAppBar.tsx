@@ -105,14 +105,10 @@ const ResponsiveAppBar = () => {
               variant="h6"
               noWrap
               component="a"
-              href={connected ? "/feed" : "/"}
+              onClick={() => navigate(connected ? "/feed" : "/")}
               sx={{
-                fontWeight: 700,
-                letterSpacing: "0.1rem",
-                color: "#fff",
-                textDecoration: "none",
-                fontSize: "1.4rem",
-                textTransform: "uppercase",
+                // ... existing styles
+                cursor: 'pointer', // Add this to show it's clickable
               }}
             >
               FireFilm

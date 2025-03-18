@@ -10,7 +10,7 @@ interface PagingProps {
 }
 
 // Styled components for better visuals
-const PagingButton = styled(Button)(({ theme }) => ({
+const PagingButton = styled(Button)(() => ({
   fontWeight: 'bold',
   boxShadow: '0 3px 5px rgba(0, 0, 0, 0.1)',
   transition: 'all 0.3s ease',
@@ -30,21 +30,21 @@ const PagingButton = styled(Button)(({ theme }) => ({
   }
 }));
 
-const NavButton = styled(PagingButton)(({ theme }) => ({
+const NavButton = styled(PagingButton)(() => ({
   padding: '8px 16px',
   borderRadius: '8px',
   textTransform: 'uppercase',
   letterSpacing: '0.5px',
 }));
 
-const PageButton = styled(PagingButton)(({ theme }) => ({
+const PageButton = styled(PagingButton)(() => ({
   minWidth: '40px',
   height: '40px',
   borderRadius: '50%',
   padding: '0px',
 }));
 
-const PageInfo = styled(Typography)(({ theme }) => ({
+const PageInfo = styled(Typography)(() => ({
   fontWeight: 'bold',
   padding: '6px 12px',
   borderRadius: '20px',

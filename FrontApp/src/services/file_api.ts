@@ -1,9 +1,9 @@
-// file.api.js
 import axios from 'axios';
-const API_URL = "http://localhost:4000";
+const API_URL = "https://10.10.246.3";
 
-const UserUploadImage = async (file:string) => {
+const UserUploadImage = async (file:File) => {
     const formData = new FormData();
+    console.log(file);
     formData.append('file', file);
   
     try {
@@ -23,6 +23,7 @@ const UserUploadImage = async (file:string) => {
   };
 
 const uploadImage = async (file:string) => {
+  console.log(file);
   const formData = new FormData();
   formData.append('file', file);
 

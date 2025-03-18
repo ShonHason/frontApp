@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  Card, CardContent, Typography, Box, Divider, List,
-  ListItem, TextField, Button, Rating, Container, Paper, Avatar,
-  Chip, Dialog, DialogTitle, DialogContent, DialogActions,
-  IconButton
+  Card, CardContent, Typography, Box,
+ TextField, Button, Rating, Container, Paper, Avatar,
+   Dialog, DialogTitle, DialogContent, DialogActions,
 } from "@mui/material";
 import { 
   ArrowBack, Edit, Delete, 
-  CalendarMonth, Comment as CommentIcon 
-} from "@mui/icons-material";
+  CalendarMonth} from "@mui/icons-material";
 import { 
   singlePost, getComments, isLiked
   , updatePost, deletePost 
@@ -111,7 +109,7 @@ const SinglePostPage: React.FC = () => {
       // Fetch avatar for each unique user
       const avatarPromises = uniqueUsers.map(async (username) => {
         try {
-          const avatarUrl = await getImg(username);
+          const avatarUrl = await getImg(username as string);
           return { username, avatarUrl };
         } catch (error) {
           console.error(`Error fetching avatar for ${username}:`, error);
@@ -121,7 +119,7 @@ const SinglePostPage: React.FC = () => {
       
       const avatarResults = await Promise.all(avatarPromises);
       const avatarMap = avatarResults.reduce((map, { username, avatarUrl }) => {
-        map[username] = avatarUrl;
+        map[username as string] = avatarUrl;
         return map;
       }, {} as {[key: string]: string});
       
