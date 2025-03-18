@@ -101,9 +101,11 @@ const Home: React.FC = () => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
+      const API_URL = "https://10.10.246.3";
+
       const url = filterByUser
-        ? `http://localhost:4000/Posts?owner=${currentUsername}`
-        : "http://localhost:4000/Posts";
+        ? `${API_URL}/Posts?owner=${currentUsername}`
+        : `${API_URL}/Posts`;
       const response = await axios.get<PostType[]>(url);
       setPosts(response.data);
       setCurrentPage(1);
@@ -123,7 +125,7 @@ const Home: React.FC = () => {
   };
 
   const handleRankChange = (
-    event: React.SyntheticEvent,
+    _event: React.SyntheticEvent,
     newValue: number | null
   ) => {
     setNewPost({ ...newPost, rank: newValue || 0 });
@@ -151,7 +153,7 @@ const Home: React.FC = () => {
       title: newPost.title,
       content: newPost.content,
       rank: newPost.rank,
-      imageUrl: newPost.imageUrl, // Use the stored image URL
+      imgUrl: newPost.imageUrl, // Use the stored image URL
       owner: currentUsername,
     };
 

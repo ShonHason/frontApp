@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000"; // Replace with your actual API URL
+const API_URL = "https://10.10.246.3";
 
 // ✅ Register a new user
 export const registerUser = async (userData: {
@@ -202,7 +202,7 @@ export const getUserData = async (username:string) => {
       console.error("No access token found!");
       return;
     }
-    const response = await axios.get(`http://localhost:4000/auth/myuser/${username}`,{
+    const response = await axios.get(`${API_URL}/auth/myuser/${username}`,{
       headers: {
         Authorization: "jwt " + accessToken, // Attach the accessToken in the header
       },

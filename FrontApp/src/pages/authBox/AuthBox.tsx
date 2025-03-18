@@ -39,7 +39,7 @@ const AuthBox = () => {
     avatar: "",
     username: "",
   });
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  // Remove unused state variable
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -99,7 +99,7 @@ const AuthBox = () => {
     }
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
     setFormValues({
       usernameOrEmail: "",
@@ -116,7 +116,6 @@ const AuthBox = () => {
       avatar: "",
       username: "",
     });
-    setAvatarFile(null);
     setAvatarPreview(null);
     setImageUrl(null);
   };
@@ -147,14 +146,15 @@ const AuthBox = () => {
         return;
       }
 
-      setAvatarFile(file);
       setFormErrors({...formErrors, avatar: ""});
       
       // Create preview
       const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        setAvatarPreview(result);
+      reader.onload = (e) => {
+        if (e.target) {
+          const result = e.target.result as string;
+          setAvatarPreview(result);
+        }
       };
       reader.readAsDataURL(file);
 
@@ -248,7 +248,6 @@ const AuthBox = () => {
             confirmPassword: "",
             username: "",
           });
-          setAvatarFile(null);
           setAvatarPreview(null);
           setImageUrl(null);
         } else {

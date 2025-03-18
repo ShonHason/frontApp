@@ -32,7 +32,6 @@ const ProfilePage = () => {
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -51,7 +50,7 @@ const ProfilePage = () => {
   const fetchUserProfile = async (username: string) => {
     try {
       const accessToken = localStorage.getItem('accessToken');
-      const response = await axios.get(`http://localhost:4000/auth/myuser/${username}`,{
+      const response = await axios.get(`https://10.10.246.3/auth/myuser/${username}`,{
         headers: {
           Authorization: "jwt " + accessToken, // Attach the accessToken in the header
         },
@@ -69,27 +68,30 @@ const ProfilePage = () => {
     }
   };
 
-  const handleImageChange = async (event) => {
+  const handleImageChange = (event: any) => {
     const file = event.target.files[0];
     if (file) {
-      setImage(file);
       setImagePreview(URL.createObjectURL(file));
 
       try {
         // Upload the image via the API
-        const imageUrl : string  = await uploadImage(file);
-        console.log("img:" + imageUrl);
-        // Update the image preview with the new URL from the backend
-        setImagePreview(imageUrl);
-        showNotification('התמונה עודכנה בהצלחה', 'success');
-        saveImg(imageUrl);
+        uploadImage(file).then((imageUrl: string) => {
+          console.log("img:" + imageUrl);
+          // Update the image preview with the new URL from the backend
+          setImagePreview(imageUrl);
+          showNotification('התמונה עודכנה בהצלחה', 'success');
+          saveImg(imageUrl);
+        }).catch(error => {
+          console.error("Error uploading image:", error);
+          showNotification('שגיאה בהעלאת התמונה', 'error');
+        });
       } catch (error) {
-        showNotification('שגיאה בהעלאת התמונה', 'error');
+        showNotification('שגיאה בהעלאת התמונה'+error);
       }
     }
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event: any) => {
     event.preventDefault();
     if (username.length <= 3) {
       showNotification('שם המשתמש חייב להיות באורך של יותר מ-3 תו', 'error');
@@ -101,66 +103,62 @@ const ProfilePage = () => {
       showNotification('שם המשתמש לא יכול לכלול רווחים', 'error');
       return;
     }
-    try {
-
-      const oldUsername = localStorage.getItem('username');
-      if (username !== oldUsername && oldUsername !== null) {
-        await updateUser(oldUsername, username); // קריאה לפונקציה updateUser לשינוי שם המשתמש
-        showNotification('השם המשתמש שונה בהצלחה', 'success');
-        localStorage.setItem('username', username); 
-
-      } else {
-        showNotification('לא שינית את השם המשתמש', 'info'); // הודעה למשתמש אם הוא לא שינה את השם
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      showNotification('שגיאה בעדכון הפרופיל', 'error');
+    
+    const oldUsername = localStorage.getItem('username');
+    if (username !== oldUsername && oldUsername !== null) {
+      updateUser(oldUsername, username)
+        .then(() => {
+          showNotification('השם המשתמש שונה בהצלחה', 'success');
+          localStorage.setItem('username', username);
+        })
+        .catch(error => {
+          console.error('Error updating profile:', error);
+          showNotification('שגיאה בעדכון הפרופיל', 'error');
+        });
+    } else {
+      showNotification('לא שינית את השם המשתמש', 'info');
     }
   };
   
-  const handlePasswordChange = async () => {
+  const handlePasswordChange = () => {
     if (newPassword !== confirmPassword) {
       showNotification('הסיסמאות אינן תואמות', 'error');
       return;
     }
     
-    try {
-      // Call the API function to change the password
-       await changePassword(username, password, newPassword);
-      
-      setPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      setShowPasswordChange(false);
-      
-      showNotification('הסיסמה שונתה בהצלחה', 'success');
-    } catch (error) {
-      console.error('Error changing password:', error);
-      showNotification('שגיאה בשינוי הסיסמה', 'error');
-    }
+    // Call the API function to change the password
+    changePassword(username, password, newPassword)
+      .then(() => {
+        setPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setShowPasswordChange(false);
+        showNotification('הסיסמה שונתה בהצלחה', 'success');
+      })
+      .catch(error => {
+        console.error('Error changing password:', error);
+        showNotification('שגיאה בשינוי הסיסמה', 'error');
+      });
   };
 
-
-  const handleDeleteAccount = async () => {
-  try {
+  const handleDeleteAccount = () => {
     // Call the API function to delete the account
-    await deleteAccount();
+    deleteAccount()
+      .then(() => {
+        // Remove username and token from localStorage
+        localStorage.removeItem('username');
+        localStorage.removeItem('token');
+        showNotification('החשבון נמחק בהצלחה', 'info');
+        // Redirect to login page after successful deletion
+        window.location.href = '/';
+      })
+      .catch(error => {
+        console.error('Error deleting account:', error);
+        showNotification('שגיאה במחיקת החשבון', 'error');
+      });
     
-    // Remove username and token from localStorage
-    localStorage.removeItem('username');
-    localStorage.removeItem('token');
-    
-    showNotification('החשבון נמחק בהצלחה', 'info');
-    
-    // Redirect to login page after successful deletion
-    window.location.href = '/';
-  } catch (error) {
-    console.error('Error deleting account:', error);
-    showNotification('שגיאה במחיקת החשבון', 'error');
-  }
-  setDeleteDialogOpen(false);
-};
-
+    setDeleteDialogOpen(false);
+  };
 
   const showNotification = (message: string, type: AlertColor = 'info') => {
     setNotification({ open: true, message, type });
