@@ -5,22 +5,22 @@ import {
   TextField,
   Avatar,
   IconButton,
-  Grid,
-  CardContent,
+  Stack,
   Typography,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Paper,
   Collapse,
   Alert,
-  Snackbar
+  Snackbar,
+  Divider
 } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LockResetIcon from '@mui/icons-material/LockReset';
+import SaveIcon from '@mui/icons-material/Save';
 import axios from 'axios';
 import {changePassword,deleteAccount,updateUser} from '../../services/user_api';  
 import {uploadImage,saveImg} from '../../services/file_api';
@@ -35,8 +35,20 @@ const ProfilePage = () => {
   const [imagePreview, setImagePreview] = useState('');
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
   
-  const [notification, setNotification] = useState<{ open: boolean; message: string; type: AlertColor }>({ open: false, message: '', type: 'info' });
+  // Notification state
+  const [notification, setNotification] = useState<{ 
+    open: boolean; 
+    message: string; 
+    title: string;
+    type: AlertColor 
+  }>({ 
+    open: false, 
+    message: '', 
+    title: '',
+    type: 'info' 
+  });
 
   useEffect(() => {
     // Fetch user profile when the component mounts
@@ -50,9 +62,9 @@ const ProfilePage = () => {
   const fetchUserProfile = async (username: string) => {
     try {
       const accessToken = localStorage.getItem('accessToken');
-      const response = await axios.get(`https://10.10.246.3/auth/myuser/${username}`,{
+      const response = await axios.get(`https://node03.cs.colman.ac.il/auth/myuser/${username}`,{
         headers: {
-          Authorization: "jwt " + accessToken, // Attach the accessToken in the header
+          Authorization: "jwt " + accessToken,
         },
       });
       const userProfile = response.data;
@@ -64,7 +76,7 @@ const ProfilePage = () => {
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
-      showNotification('שגיאה בטעינת פרטי המשתמש', 'error');
+      showNotification('Error', 'Could not load profile data', 'error');
     }
   };
 
@@ -72,21 +84,23 @@ const ProfilePage = () => {
     const file = event.target.files[0];
     if (file) {
       setImagePreview(URL.createObjectURL(file));
+      setImageLoading(true);
 
       try {
         // Upload the image via the API
         uploadImage(file).then((imageUrl: string) => {
-          console.log("img:" + imageUrl);
-          // Update the image preview with the new URL from the backend
           setImagePreview(imageUrl);
-          showNotification('התמונה עודכנה בהצלחה', 'success');
+          setImageLoading(false);
+          showNotification('Profile Picture Updated', 'Your profile picture has been saved', 'success');
           saveImg(imageUrl);
         }).catch(error => {
           console.error("Error uploading image:", error);
-          showNotification('שגיאה בהעלאת התמונה', 'error');
+          setImageLoading(false);
+          showNotification('Upload Failed', 'Could not upload the image', 'error');
         });
       } catch (error) {
-        showNotification('שגיאה בהעלאת התמונה'+error);
+        setImageLoading(false);
+        showNotification('Error', 'An unexpected error occurred'+ error);
       }
     }
   };
@@ -94,13 +108,12 @@ const ProfilePage = () => {
   const handleSubmit = (event: any) => {
     event.preventDefault();
     if (username.length <= 3) {
-      showNotification('שם המשתמש חייב להיות באורך של יותר מ-3 תו', 'error');
+      showNotification('Username Too Short', 'Username must be longer than 3 characters', 'error');
       return;
     }
   
-    // בדיקה שאין רווחים בשם המשתמש
     if (/\s/.test(username)) {
-      showNotification('שם המשתמש לא יכול לכלול רווחים', 'error');
+      showNotification('Invalid Username', 'Username cannot contain spaces', 'error');
       return;
     }
     
@@ -108,21 +121,21 @@ const ProfilePage = () => {
     if (username !== oldUsername && oldUsername !== null) {
       updateUser(oldUsername, username)
         .then(() => {
-          showNotification('השם המשתמש שונה בהצלחה', 'success');
+          showNotification('Username Updated', 'Your username has been changed successfully', 'success');
           localStorage.setItem('username', username);
         })
         .catch(error => {
           console.error('Error updating profile:', error);
-          showNotification('שגיאה בעדכון הפרופיל', 'error');
+          showNotification('Update Failed', 'Could not update your profile', 'error');
         });
     } else {
-      showNotification('לא שינית את השם המשתמש', 'info');
+      showNotification('No Changes', 'No changes were made to the username', 'info');
     }
   };
   
   const handlePasswordChange = () => {
     if (newPassword !== confirmPassword) {
-      showNotification('הסיסמאות אינן תואמות', 'error');
+      showNotification('Passwords Do Not Match', 'Please make sure passwords match', 'error');
       return;
     }
     
@@ -133,11 +146,11 @@ const ProfilePage = () => {
         setNewPassword('');
         setConfirmPassword('');
         setShowPasswordChange(false);
-        showNotification('הסיסמה שונתה בהצלחה', 'success');
+        showNotification('Password Changed', 'Your password has been updated', 'success');
       })
       .catch(error => {
         console.error('Error changing password:', error);
-        showNotification('שגיאה בשינוי הסיסמה', 'error');
+        showNotification('Password Change Failed', 'Please verify your current password', 'error');
       });
   };
 
@@ -148,20 +161,22 @@ const ProfilePage = () => {
         // Remove username and token from localStorage
         localStorage.removeItem('username');
         localStorage.removeItem('token');
-        showNotification('החשבון נמחק בהצלחה', 'info');
+        showNotification('Account Deleted', 'Your account has been deleted successfully', 'info');
         // Redirect to login page after successful deletion
-        window.location.href = '/';
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
       })
       .catch(error => {
         console.error('Error deleting account:', error);
-        showNotification('שגיאה במחיקת החשבון', 'error');
+        showNotification('Delete Failed', 'Could not delete your account', 'error');
       });
     
     setDeleteDialogOpen(false);
   };
 
-  const showNotification = (message: string, type: AlertColor = 'info') => {
-    setNotification({ open: true, message, type });
+  const showNotification = (title: string, message: string, type: AlertColor = 'info') => {
+    setNotification({ open: true, title, message, type });
   };
 
   const handleCloseNotification = () => {
@@ -170,223 +185,297 @@ const ProfilePage = () => {
 
   return (
     <Box sx={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      minHeight: '100vh', 
-      bgcolor: '#f4f6f9',
-      p: 3 
+      minHeight: '100vh',
+      py: 6,
+      px: 3
     }}>
-    <Snackbar
-      open={notification.open}
-      autoHideDuration={6000}
-      onClose={handleCloseNotification}
-      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-    >
-      <Alert onClose={handleCloseNotification} severity={notification.type} sx={{ width: '100%' }}>
-        {notification.message}
-      </Alert>
-    </Snackbar>
-  
-    <Paper 
-      elevation={6} 
-      sx={{ 
-        borderRadius: 3, 
-        overflow: 'hidden',
-        background: 'linear-gradient(to right bottom, #ffffff, #e8eaf6)', 
-        maxWidth: 800,
-        width: '100%',
-      }}
-    >
-      <Box 
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={6000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notification.type} 
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          <Typography fontWeight="bold" variant="subtitle2">{notification.title}</Typography>
+          <Typography variant="body2">{notification.message}</Typography>
+        </Alert>
+      </Snackbar>
+
+      {/* Header */}
+      <Typography 
+        variant="h4" 
+        marginTop={'35px'}
+        fontWeight="bold" 
+        align="center" 
         sx={{ 
-          bgcolor: 'primary.main', 
-          color: 'white', 
-          p: 3,
-          textAlign: 'center',
-          boxShadow: 3
+          mb: 5
         }}
       >
-        <Typography variant="h4" component="h1" fontWeight="bold" dir="rtl">
-          הגדרות פרופיל
-        </Typography>
-      </Box>
-  
-      <CardContent sx={{ p: 4 }}>
-        <Grid container spacing={3} dir="rtl">
-          <Grid item xs={12} display="flex" justifyContent="center" alignItems="center" sx={{ mb: 3 }}>
-            <Box sx={{ position: 'relative' }}>
-              <Avatar
-                alt={username}
-                src={imagePreview || '/default-avatar.png'}
+        My Profile
+      </Typography>
+
+      {/* Profile Content */}
+      <Stack
+        spacing={6}
+        alignItems="center"
+        sx={{ maxWidth: 600, mx: 'auto' }}
+      >
+        {/* Avatar Section */}
+        <Box sx={{ position: 'relative' }}>
+          <Avatar
+            alt={username}
+            src={imagePreview || '/default-avatar.png'}
+            sx={{ 
+              width: 140, 
+              height: 140, 
+              opacity: imageLoading ? 0.6 : 1
+            }}
+          />
+          {imageLoading && (
+            <Box sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '50%'
+            }}>
+              <Typography sx={{ color: 'black', fontWeight: 'bold', bgcolor: 'rgba(255,255,255,0.7)', px: 2, py: 0.5, borderRadius: 1 }}>
+                Uploading...
+              </Typography>
+            </Box>
+          )}
+          <label htmlFor="icon-button-file">
+            <input
+              accept="image/*"
+              id="icon-button-file"
+              type="file"
+              style={{ display: 'none' }}
+              onChange={handleImageChange}
+            />
+            <IconButton 
+              color="primary" 
+              component="span" 
+              sx={{ 
+                position: 'absolute', 
+                bottom: 5, 
+                right: 5
+              }}
+            >
+              <PhotoCamera />
+            </IconButton>
+          </label>
+        </Box>
+
+        {/* Form Fields */}
+        <Stack spacing={3} sx={{ width: '100%' }}>
+          <TextField
+            fullWidth
+            label="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            variant="outlined"
+            sx={{ 
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2
+              }
+            }}
+          />
+          
+          <TextField
+            fullWidth
+            label="Email"
+            type="email"
+            value={email}
+            variant="outlined"
+            disabled
+            sx={{ 
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2
+              }
+            }}
+          />
+
+          <Button 
+            variant={showPasswordChange ? "outlined" : "contained"} 
+            startIcon={<LockResetIcon />}
+            onClick={() => setShowPasswordChange(!showPasswordChange)}
+            fullWidth
+            sx={{ 
+              borderRadius: 2,
+              py: 1.5,
+              textTransform: 'none',
+              fontSize: '1rem'
+            }}
+          >
+            {showPasswordChange ? 'Cancel Password Change' : 'Change Password'}
+          </Button>
+
+          <Collapse in={showPasswordChange}>
+            <Stack 
+              spacing={3} 
+              sx={{ 
+                p: 3, 
+                mt: 2,
+                borderRadius: 3
+              }}
+            >
+              <Typography variant="subtitle1" fontWeight="bold">
+                Change Your Password
+              </Typography>
+              
+              <Divider />
+              
+              <TextField
+                fullWidth
+                label="Current Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                variant="outlined"
                 sx={{ 
-                  width: 120, 
-                  height: 120, 
-                  border: '4px solid white', 
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.15)', 
-                  transition: 'all 0.3s ease' 
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2
+                  }
                 }}
               />
-              <label htmlFor="icon-button-file">
-                <input
-                  accept="image/*"
-                  id="icon-button-file"
-                  type="file"
-                  style={{ display: 'none' }}
-                  onChange={handleImageChange}
-                />
-                <IconButton 
-                  color="primary" 
-                  component="span" 
-                  sx={{ 
-                    position: 'absolute', 
-                    bottom: 0, 
-                    right: 0, 
-                    bgcolor: 'white',
-                    '&:hover': { bgcolor: 'grey.100' },
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)' 
-                  }}
-                >
-                  <PhotoCamera />
-                </IconButton>
-              </label>
-            </Box>
-          </Grid>
-  
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="שם משתמש"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              variant="outlined"
-              InputLabelProps={{ dir: 'rtl' }}
-              sx={{ mb: 2 }}
-            />
-          </Grid>
-  
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="אימייל"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              variant="outlined"
-              InputLabelProps={{ dir: 'rtl' }}
-              sx={{ mb: 2 }}
-              disabled
-            />
-          </Grid>
-  
-          <Grid item xs={12}>
-            <Button 
-              variant="outlined" 
-              startIcon={<LockResetIcon />}
-              onClick={() => setShowPasswordChange(!showPasswordChange)}
-              fullWidth
-              sx={{ mb: 3, textTransform: 'none', fontSize: '1.1rem' }}
-            >
-              {showPasswordChange ? 'בטל שינוי סיסמה' : 'שנה סיסמה'}
-            </Button>
-          </Grid>
-  
-          <Grid item xs={12}>
-            <Collapse in={showPasswordChange}>
-              <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2, mb: 2 }}>
-                <TextField
-                  fullWidth
-                  label="סיסמה נוכחית"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  variant="outlined"
-                  InputLabelProps={{ dir: 'rtl' }}
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  fullWidth
-                  label="סיסמה חדשה"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  variant="outlined"
-                  InputLabelProps={{ dir: 'rtl' }}
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  fullWidth
-                  label="אימות סיסמה חדשה"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  variant="outlined"
-                  InputLabelProps={{ dir: 'rtl' }}
-                  sx={{ mb: 2 }}
-                />
-                <Button 
-                  variant="contained" 
-                  color="primary" 
-                  onClick={handlePasswordChange}
-                  fullWidth
-                >
-                  עדכן סיסמה
-                </Button>
-              </Box>
-            </Collapse>
-          </Grid>
-  
-          <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Button 
-              variant="contained" 
-              color="error" 
-              startIcon={<DeleteIcon />}
-              onClick={() => setDeleteDialogOpen(true)}
-              sx={{ textTransform: 'none' }}
-            >
-              מחק חשבון
-            </Button>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={handleSubmit}
-              sx={{ textTransform: 'none' }}
-            >
-              עדכן פרופיל
-            </Button>
-          </Grid>
-        </Grid>
-      </CardContent>
-    </Paper>
-  
-    {/* Dialog for account deletion confirmation */}
-    <Dialog
-      open={deleteDialogOpen}
-      onClose={() => setDeleteDialogOpen(false)}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-      dir="rtl"
-    >
-      <DialogTitle id="alert-dialog-title">
-        {"האם אתה בטוח שברצונך למחוק את החשבון?"}
-      </DialogTitle>
-      <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          פעולה זו תמחק את כל המידע שלך מהמערכת, כולל כל הנתונים במסד הנתונים.
-          פעולה זו אינה ניתנת לביטול ולא תוכל לשחזר את המידע לאחר המחיקה.
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
-          ביטול
-        </Button>
-        <Button onClick={handleDeleteAccount} color="error" autoFocus>
-          מחק חשבון
-        </Button>
-      </DialogActions>
-    </Dialog>
-  </Box>
-  
+              
+              <TextField
+                fullWidth
+                label="New Password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                variant="outlined"
+                sx={{ 
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2
+                  }
+                }}
+              />
+              
+              <TextField
+                fullWidth
+                label="Confirm New Password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                variant="outlined"
+                sx={{ 
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2
+                  }
+                }}
+              />
+              
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={handlePasswordChange}
+                sx={{ 
+                  borderRadius: 2,
+                  py: 1.5,
+                  textTransform: 'none'
+                }}
+              >
+                Update Password
+              </Button>
+            </Stack>
+          </Collapse>
+        </Stack>
+
+        {/* Action Buttons */}
+        <Stack 
+          direction="row" 
+          spacing={3} 
+          justifyContent="space-between" 
+          sx={{ width: '100%', mt: 3 }}
+        >
+          <Button 
+            variant="outlined" 
+            color="error" 
+            startIcon={<DeleteIcon />}
+            onClick={() => setDeleteDialogOpen(true)}
+            sx={{ 
+              borderRadius: 2,
+              py: 1.5,
+              px: 3,
+              textTransform: 'none',
+              borderWidth: 2
+            }}
+          >
+            Delete Account
+          </Button>
+          
+          <Button 
+            variant="contained" 
+            startIcon={<SaveIcon />}
+            onClick={handleSubmit}
+            sx={{ 
+              borderRadius: 2,
+              py: 1.5,
+              px: 3,
+              textTransform: 'none'
+            }}
+          >
+            Save Changes
+          </Button>
+        </Stack>
+      </Stack>
+
+      {/* Delete Account Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            maxWidth: 480
+          }
+        }}
+      >
+        <DialogTitle sx={{ pt: 3, pb: 1, fontWeight: 'bold' }}>
+          Are you sure you want to delete your account?
+        </DialogTitle>
+        
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            This action will delete all your information from the system, including all data in the database.
+          </DialogContentText>
+          <DialogContentText sx={{ fontWeight: 500 }}>
+            This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        
+        <DialogActions sx={{ p: 3, pt: 2 }}>
+          <Button 
+            onClick={() => setDeleteDialogOpen(false)} 
+            sx={{ borderRadius: 2, px: 3 }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteAccount} 
+            color="error" 
+            variant="contained"
+            sx={{ 
+              borderRadius: 2, 
+              px: 3
+            }}
+          >
+            Delete Account
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 };
 

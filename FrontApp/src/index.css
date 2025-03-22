@@ -1,3 +1,4 @@
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -71,9 +72,12 @@ body, html {
   padding: 0;
   height: 100%;
   width: 100%;
-  background-image: url('/Users/shonhason/Desktop/React/FrontApp/src/assets/MovieBackground.webp');
-  background-size: cover;
+  background-image: url('/Users/shonhason/Desktop/React/FrontApp/src/assets/Background-Img.jpeg');
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  overflow: hidden;
 }

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://10.10.246.3";
+const API_URL = "https://node03.cs.colman.ac.il";
 export const myPosts = async (owner: string) => {
   try {
     const response = await axios.get(`${API_URL}/Posts/${owner}`);
@@ -78,7 +78,7 @@ export const unlike = async (postId: string) => {
 export const getComments = async (postId: string) => {
   try {
     const response = await axios.get(
-      `${API_URL}/Comments/getCommentsByPostId/${postId}`
+      `${API_URL}/Comments/?post_id=${postId}`
     );
     return response.data;
   } catch (error) {

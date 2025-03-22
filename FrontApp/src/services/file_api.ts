@@ -1,5 +1,6 @@
+// file.api.js
 import axios from 'axios';
-const API_URL = "https://10.10.246.3";
+const API_URL = "https://node03.cs.colman.ac.il";
 
 const UserUploadImage = async (file:File) => {
     const formData = new FormData();
