@@ -14,7 +14,7 @@ import {
   Stack,
   LinearProgress,
   Alert,
-  Snackbar,
+  Snackbar
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
@@ -48,7 +48,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
   onFileChange,
   onImageUrlChange,
   onCreatePost,
-  creatingPost,
+  creatingPost
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -59,13 +59,15 @@ const CreatePost: React.FC<CreatePostProps> = ({
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
+    
     if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else if (e.type === "dragleave") {
       setDragActive(false);
     }
   };
+
+
 
   const uploadFile = async (file: File) => {
     try {
@@ -79,27 +81,27 @@ const CreatePost: React.FC<CreatePostProps> = ({
       console.log("File type:", file.type);
       console.log("File size:", file.size);
       setUploadProgress(30);
-
+      
       // Create a new File object to ensure it's properly formatted
       const formData = new FormData();
-      formData.append("file", file);
-
+      formData.append('file', file);
+      
       // Upload the file - this approach should work better with the server
       setUploadProgress(50);
-
+      
       // Method 1: Try using the File object directly
       console.log("Attempting upload with File object directly");
       const imageUrl = await UserUploadImage(file);
-
+      
       // Upload the file - this approach should work better with the server
       setUploadProgress(50);
       console.log("Attempting upload with File object directly");
       console.log("Upload successful! Response URL:", imageUrl);
-
+      
       // Update parent component with the image URL
       setUploadProgress(100);
       onImageUrlChange(imageUrl);
-
+      
       // Reset upload state
       setIsUploading(false);
       return true;
@@ -108,9 +110,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
       console.error("Error during file upload:", error);
       setIsUploading(false);
       setUploadProgress(0);
-      setError(
-        error instanceof Error ? error.message : "Error uploading image"
-      );
+      setError(error instanceof Error ? error.message : 'Error uploading image');
       return false;
     }
   };
@@ -119,7 +119,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
+    
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       await uploadFile(e.dataTransfer.files[0]);
     }
@@ -137,22 +137,22 @@ const CreatePost: React.FC<CreatePostProps> = ({
 
   const handleRemoveFile = () => {
     onFileChange(null);
-    onImageUrlChange("");
+    onImageUrlChange('');
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = '';
     }
   };
-
+  
   const handleCloseError = () => {
     setError(null);
   };
-
+  
   const renderFilePreview = () => {
     if (!newPost.file) return null;
-
-    const isImage = newPost.file.type.startsWith("image/");
+    
+    const isImage = newPost.file.type.startsWith('image/');
     const fileSize = (newPost.file.size / 1024 / 1024).toFixed(2);
-
+    
     return (
       <Paper
         variant="outlined"
@@ -161,7 +161,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
           mt: 2,
           mb: 3,
           borderRadius: 1,
-          position: "relative",
+          position: 'relative',
         }}
       >
         <Stack direction="row" spacing={2} alignItems="center">
@@ -173,8 +173,8 @@ const CreatePost: React.FC<CreatePostProps> = ({
               sx={{
                 width: 60,
                 height: 60,
-                objectFit: "cover",
-                borderRadius: 1,
+                objectFit: 'cover',
+                borderRadius: 1
               }}
             />
           ) : (
@@ -182,11 +182,11 @@ const CreatePost: React.FC<CreatePostProps> = ({
               sx={{
                 width: 60,
                 height: 60,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                bgcolor: "action.hover",
-                borderRadius: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                bgcolor: 'action.hover',
+                borderRadius: 1
               }}
             >
               <ImageIcon color="action" />
@@ -196,11 +196,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
             <Typography variant="body2" noWrap component="div">
               {newPost.file.name}
             </Typography>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              component="div"
-            >
+            <Typography variant="caption" color="text.secondary" component="div">
               {fileSize} MB
             </Typography>
             <LinearProgress
@@ -214,11 +210,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
               </Typography>
             )}
             {newPost.imageUrl && !isUploading && (
-              <Typography
-                variant="caption"
-                color="success.main"
-                component="div"
-              >
+              <Typography variant="caption" color="success.main" component="div">
                 Image uploaded successfully
               </Typography>
             )}
@@ -237,19 +229,21 @@ const CreatePost: React.FC<CreatePostProps> = ({
   };
 
   return (
-    <Dialog
-      open={open}
+    <Dialog 
+      open={open} 
       onClose={onClose}
       maxWidth="sm"
       fullWidth
       PaperProps={{
         sx: {
           borderRadius: 2,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-        },
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+        }
       }}
     >
-      <DialogTitle>Create Movie Review</DialogTitle>
+      <DialogTitle>
+        Create Movie Review
+      </DialogTitle>
 
       <DialogContent sx={{ pt: 2 }}>
         <Box sx={{ mb: 3 }}>
@@ -270,7 +264,7 @@ const CreatePost: React.FC<CreatePostProps> = ({
           onChange={onNewPostChange}
           sx={{ mb: 2 }}
         />
-
+        
         <TextField
           margin="dense"
           name="content"
@@ -283,8 +277,8 @@ const CreatePost: React.FC<CreatePostProps> = ({
           onChange={onNewPostChange}
           sx={{ mb: 2 }}
         />
-
-        <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+        
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <Typography component="legend" sx={{ mr: 2 }}>
             Your Rating:
           </Typography>
@@ -300,18 +294,18 @@ const CreatePost: React.FC<CreatePostProps> = ({
         </Box>
 
         {renderFilePreview()}
-
+        
         <Box
           onDragEnter={handleDrag}
           sx={{
-            border: "2px dashed",
-            borderColor: dragActive ? "primary.main" : "divider",
+            border: '2px dashed',
+            borderColor: dragActive ? 'primary.main' : 'divider',
             borderRadius: 1,
             p: 3,
-            textAlign: "center",
-            transition: "all 0.2s",
-            bgcolor: dragActive ? "action.hover" : "background.paper",
-            cursor: "pointer",
+            textAlign: 'center',
+            transition: 'all 0.2s',
+            bgcolor: dragActive ? 'action.hover' : 'background.paper',
+            cursor: 'pointer',
           }}
           onClick={handleButtonClick}
         >
@@ -320,40 +314,31 @@ const CreatePost: React.FC<CreatePostProps> = ({
             type="file"
             onChange={handleFileChange}
             accept="image/*"
-            style={{ display: "none" }}
+            style={{ display: 'none' }}
           />
           <CloudUploadIcon color="action" sx={{ fontSize: 40, mb: 1 }} />
           <Typography variant="body1" gutterBottom>
-            {dragActive
-              ? "Drop your file here"
-              : "Upload a movie poster or screenshot"}
+            {dragActive ? 'Drop your file here' : 'Upload a movie poster or screenshot'}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {isUploading
-              ? "Uploading image..."
-              : "Drag and drop a file here, or click to select a file"}
+            {isUploading ? 'Uploading image...' : 'Drag and drop a file here, or click to select a file'}
           </Typography>
         </Box>
       </DialogContent>
-
+      
       <DialogActions sx={{ px: 3, pb: 3 }}>
         <Button onClick={onClose} color="inherit" sx={{ fontWeight: 500 }}>
           Cancel
         </Button>
-        <Button
-          onClick={onCreatePost}
+        <Button 
+          onClick={onCreatePost} 
           color="primary"
           variant="contained"
-          disabled={
-            creatingPost ||
-            !newPost.title.trim() ||
-            !newPost.content.trim() ||
-            isUploading
-          }
-          sx={{
+          disabled={creatingPost || !newPost.title.trim() || !newPost.content.trim() || isUploading}
+          sx={{ 
             fontWeight: 500,
             borderRadius: 1.5,
-            px: 2,
+            px: 2
           }}
         >
           {creatingPost ? "Posting..." : "Post Review"}
@@ -375,17 +360,9 @@ const CreatePost: React.FC<CreatePostProps> = ({
           onDrop={handleDrop}
         />
       )}
-
-      <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={handleCloseError}
-      >
-        <Alert
-          onClose={handleCloseError}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
+      
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={handleCloseError}>
+        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
           {error}
         </Alert>
       </Snackbar>

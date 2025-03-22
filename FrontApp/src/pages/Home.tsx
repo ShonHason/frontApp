@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Post from "../components/Post";
 import Spinner from '../components/Spinner';
-import Paging from "../components/Paging/Paging";
+import Paging from "../components//Paging/Paging";
 import CreatePost from "../components/CreatePost";
 import {
   Box,

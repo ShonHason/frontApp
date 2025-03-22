@@ -1,8 +1,7 @@
 import axios from "axios";
 
-const API_URL = "https://10.10.246.3";
+const API_URL = "https://node03.cs.colman.ac.il";
 
-// ✅ Register a new user
 export const registerUser = async (userData: {
   username: string;
   email: string;
@@ -14,7 +13,6 @@ export const registerUser = async (userData: {
   return response.data;
 };
 
-// ✅ Login user
 export const loginUser = async (userData: {
   usernameOrEmail: string;
   password: string;
@@ -43,7 +41,6 @@ export const googleSignIn = async (token: string) => {
   return response.data;
 };
 
-// ✅ Update user details
 export const updateUser = async (oldUsername : string , newUsername : string) => {
   const accessToken = localStorage.getItem("accessToken");
   const response = await axios.put(`${API_URL}/auth/myuser/updateAccount/`, {oldUsername, newUsername},{
@@ -214,4 +211,3 @@ export const getUserData = async (username:string) => {
     throw error; // Rethrow the error if needed
   }
 }
-
